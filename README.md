@@ -13,3 +13,5 @@ Copyright [Julien Deswaef](http://xuv.be).
 
 Released under the Free Art License 1.3
 
+[More info](http://xuv.be/WORD-WARS-News-from-the-Empire.html).
+
