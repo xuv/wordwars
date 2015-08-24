@@ -1,19 +1,20 @@
-# blender backup
+# Blender backup
 *.blend1
 *.blend2
 
-# pre-rendered
+# Pre-renders
 assets/*_RAW.avi
 
-# rendered
+# Rendered
 data/description-*.txt
 render/*.avi
 render/backup
 
-# personal files & folders
+# Personal files & folders
 inspiration/*
 press/*
 *.zip
 
 # API secrets
 scripts/*.json
+qarnot-python-sdk/qarnot.conf 
