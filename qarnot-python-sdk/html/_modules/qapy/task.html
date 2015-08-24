@@ -1,0 +1,1048 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qapy.task &mdash; qapy  documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="qapy  documentation" href="../../index.html"/>
+        <link rel="up" title="qapy" href="../qapy.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../../index.html" class="fa fa-home"> qapy</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../qapy.html">qapy package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../qapy.html#module-qapy">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../qapy.html#module-qapy.connection">qapy.connection module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../qapy.html#module-qapy.disk">qapy.disk module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../qapy.html#module-qapy.task">qapy.task module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../qapy.html#qapy-notification-module">qapy.notification module</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">qapy</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+          <li><a href="../qapy.html">qapy</a> &raquo;</li>
+      
+    <li>qapy.task</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <h1>Source code for qapy.task</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;Module to handle a task.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">qapy.disk</span> <span class="kn">as</span> <span class="nn">disk</span>
+<span class="kn">from</span> <span class="nn">qapy</span> <span class="kn">import</span> <span class="n">get_url</span><span class="p">,</span> <span class="n">raise_on_error</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="kn">as</span> <span class="nn">path</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">RUNNING_DOWNLOADING_STATES</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Submitted&#39;</span><span class="p">,</span> <span class="s">&#39;PartiallyDispatched&#39;</span><span class="p">,</span> <span class="s">&#39;FullyDispatched&#39;</span><span class="p">,</span> <span class="s">&#39;PartiallyExecuting&#39;</span><span class="p">,</span> <span class="s">&#39;FullyExecuting&#39;</span><span class="p">,</span> <span class="s">&#39;DownloadingResults&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="QTask"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask">[docs]</a><span class="k">class</span> <span class="nc">QTask</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Represents a Qarnot job.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">       A :class:`QTask` must be created with</span>
+<span class="sd">       :meth:`qapy.connection.QApy.create_task`</span>
+<span class="sd">       or retrieved with :meth:`qapy.connection.QApy.tasks`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connection</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">frameNbr</span><span class="p">,</span> <span class="n">force</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new :class:`QTask`.</span>
+
+<span class="sd">        :param connection: the cluster on which to send the task</span>
+<span class="sd">        :type connection: :class:`Qconnection`</span>
+<span class="sd">        :param name: given name of the task</span>
+<span class="sd">        :type name: :class:`string`</span>
+<span class="sd">        :param profile: which profile to use with this task</span>
+<span class="sd">        :type profile: :class:`string`</span>
+<span class="sd">        :param frameNbr: number of frame on which to run task</span>
+<span class="sd">        :type frameNbr: :class:`int`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span> <span class="o">=</span> <span class="n">profile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_framecount</span> <span class="o">=</span> <span class="n">frameNbr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_force</span> <span class="o">=</span> <span class="n">force</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resource_disk</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_result_disk</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span> <span class="o">=</span> <span class="n">connection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constants</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_auto_update</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_cache_time</span> <span class="o">=</span> <span class="mi">5</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_cache</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Dictionary [CST] = val.</span>
+
+<span class="sd">        Can be set until :meth:`run` is called</span>
+
+<span class="sd">        .. note:: See available constants for a specific profile</span>
+<span class="sd">              with :meth:`qapy.connection.QApy.profile_info`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="s">&#39;UnSubmitted&#39;</span> <span class="c"># RO property same for below</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_snapshots</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dirty</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rescount</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_advanced_range</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_snapshot_whitelist</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_snapshot_blacklist</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_results_whitelist</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_results_blacklist</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_execution_cluster</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_error_reason</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resource_disk_id</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_result_disk_id</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_retrieve</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">connection</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve a submitted task given its uuid.</span>
+
+<span class="sd">        :param qapy.connection.QConnection connection:</span>
+<span class="sd">          the cluster to retrieve the task from</span>
+<span class="sd">        :param str uuid: the uuid of the task to retrieve</span>
+
+<span class="sd">        :rtype: QTask</span>
+<span class="sd">        :returns: The retrieved task.</span>
+
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.task.MissingTaskException: no such task</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">get_url</span><span class="p">(</span><span class="s">&#39;task update&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingTaskException</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span> <span class="n">uuid</span><span class="p">)</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="s">&quot;stub&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">_update</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">task</span>
+
+<div class="viewcode-block" id="QTask.run"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">job_timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Submit a task, wait for the results and download them.</span>
+
+<span class="sd">        :param str output_dir: path to a directory that will contain the results</span>
+<span class="sd">        :param float job_timeout: the task will :meth:`abort` if it has not</span>
+<span class="sd">          already finished</span>
+
+<span class="sd">        :rtype: :class:`string`</span>
+<span class="sd">        :returns: Path to the directory containing the results (may be None).</span>
+
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.disk.MissingDiskException:</span>
+<span class="sd">          resource disk is not a valid disk</span>
+
+<span class="sd">        .. note:: Will ensure all added file are on the resource disk</span>
+<span class="sd">           regardless of their uploading mode.</span>
+<span class="sd">        .. note:: If this function is interrupted (script killed for example),</span>
+<span class="sd">           but the task is submitted, the task will still be executed remotely</span>
+<span class="sd">           (results will not be downloaded)</span>
+<span class="sd">        .. warning:: Will override *output_dir* content.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">submit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">job_timeout</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">job_timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_results</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="QTask.resume"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.resume">[docs]</a>    <span class="k">def</span> <span class="nf">resume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Resume waiting for this task if it is still in submitted mode.</span>
+<span class="sd">        Equivalent to :meth:`wait` + :meth:`results`.</span>
+
+<span class="sd">        :param str output_dir: path to a directory that will contain the results</span>
+
+<span class="sd">        :rtype: :class:`string`</span>
+<span class="sd">        :returns: Path to the directory containing the results (may be None).</span>
+
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.task.MissingTaskException: task does not exist</span>
+<span class="sd">        :raises qapy.disk.MissingDiskException:</span>
+<span class="sd">          resource disk is not a valid disk</span>
+
+<span class="sd">        .. note:: Do nothing if the task has not been submitted.</span>
+<span class="sd">        .. warning:: Will override *output_dir* content.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">output_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_results</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="QTask.submit"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.submit">[docs]</a>    <span class="k">def</span> <span class="nf">submit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Submit task to the cluster if it is not already submitted.</span>
+
+<span class="sd">        :rtype: :class:`string`</span>
+<span class="sd">        :returns: Status of the task (see :attr:`state`)</span>
+
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.disk.MissingDiskException:</span>
+<span class="sd">          resource disk is not a valid disk</span>
+
+<span class="sd">        .. note:: Will ensure all added file are on the resource disk</span>
+<span class="sd">           regardless of their uploading mode.</span>
+
+<span class="sd">        .. note:: To get the results, call :meth:`results` once the job is done.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;task force&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_force</span> <span class="k">else</span> <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;tasks&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_json</span><span class="p">()</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resource_disk</span><span class="o">.</span><span class="n">uuid</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resources</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">raise</span> <span class="n">disk</span><span class="o">.</span><span class="n">MissingDiskException</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">403</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MaxTaskException</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">])</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;guid&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_snapshots</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">snapshot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_snapshots</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="QTask.abort"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.abort">[docs]</a>    <span class="k">def</span> <span class="nf">abort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Abort this task if running. Update state to Cancelled.</span>
+
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.task.MissingTaskException: task does not represent</span>
+<span class="sd">          a valid one</span>
+
+<span class="sd">        .. warning:: If this task is already finished, a call to :meth:`abort`</span>
+<span class="sd">          will delete it.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;None&quot;</span><span class="p">,</span> <span class="s">&quot;Cancelled&quot;</span><span class="p">,</span> <span class="s">&quot;Success&quot;</span><span class="p">,</span> <span class="s">&quot;Failure&quot;</span><span class="p">,</span> <span class="s">&quot;DownloadingResults&quot;</span><span class="p">]:</span>
+            <span class="k">return</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_delete</span><span class="p">(</span>
+            <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;task update&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingTaskException</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="QTask.update_resources"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.update_resources">[docs]</a>    <span class="k">def</span> <span class="nf">update_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_patch</span><span class="p">(</span>
+            <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;task update&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingTaskException</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="QTask.delete"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">purge_resources</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">purge_results</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Delete this task on the server. Does nothing if it is already deleted.</span>
+
+<span class="sd">        :param bool purge_resources: if None disk will be deleted unless locked,</span>
+<span class="sd">                otherwire parameter value is used to determine if the disk is also deleted.</span>
+<span class="sd">                Defaults to None.</span>
+
+<span class="sd">        :param bool purge_results: if None disk will be deleted unless locked,</span>
+<span class="sd">                otherwise parameter value is used to determine if the disk is also deleted.</span>
+<span class="sd">                Defaults to None.</span>
+
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.task.MissingTaskException: task does not represent a</span>
+<span class="sd">          valid one</span>
+
+<span class="sd">        .. note:: *force* parameter in :meth:`qapy.connection.QApy.create_task`</span>
+<span class="sd">           may be set to True in order to delete old tasks automatically.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;Submitted&#39;</span><span class="p">,</span> <span class="s">&#39;PartiallyDispatched&#39;</span><span class="p">,</span> <span class="s">&#39;FullyDispatched&#39;</span><span class="p">,</span> <span class="s">&#39;PartiallyExecuting&#39;</span><span class="p">,</span> <span class="s">&#39;FullyExecuting&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">purge_resources</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">purge_resources</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resource_disk</span><span class="o">.</span><span class="n">locked</span>
+            <span class="k">if</span> <span class="n">purge_resources</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_resource_disk</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">resources</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">except</span> <span class="n">disk</span><span class="o">.</span><span class="n">MissingDiskException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">purge_results</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">purge_results</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result_disk</span><span class="o">.</span><span class="n">locked</span>
+            <span class="k">if</span> <span class="n">purge_results</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_result_disk</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_result_disk</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_result_disk_id</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">except</span> <span class="n">disk</span><span class="o">.</span><span class="n">MissingDiskException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_delete</span><span class="p">(</span>
+            <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;task update&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingTaskException</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="o">=</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="QTask.update"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flushcache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the task object from the REST Api.</span>
+<span class="sd">        The flushcache parameters can be used to force the update, otherwise a cached version of the object</span>
+<span class="sd">        will be served when accessing properties of the object.</span>
+<span class="sd">        Some methods will flush the cache, like :meth:`submit`, :meth:`abort`, :meth:`wait` and :meth:`instant`.</span>
+<span class="sd">        Cache behavior is configurable with :attr:`auto_update` and :attr:`update_cache_time`.</span>
+
+<span class="sd">        :rtype: :class:`string`</span>
+<span class="sd">        :returns: State of the task (see :attr:`state`)</span>
+
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.task.MissingTaskException: task does not represent a</span>
+<span class="sd">          valid one</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">now</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_cache</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_cache_time</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">flushcache</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span>
+            <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;task update&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingTaskException</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_cache</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</div>
+    <span class="k">def</span> <span class="nf">_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_task</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update this task from retrieved info.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">json_task</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span> <span class="o">=</span> <span class="n">json_task</span><span class="p">[</span><span class="s">&#39;profile&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_framecount</span> <span class="o">=</span> <span class="n">json_task</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;frameCount&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_advanced_range</span> <span class="o">=</span> <span class="n">json_task</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;advancedRanges&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resource_disk_id</span> <span class="o">=</span> <span class="n">json_task</span><span class="p">[</span><span class="s">&#39;resourceDisk&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_result_disk_id</span> <span class="o">=</span> <span class="n">json_task</span><span class="p">[</span><span class="s">&#39;resultDisk&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_execution_cluster</span> <span class="o">=</span> <span class="n">json_task</span><span class="p">[</span><span class="s">&#39;executionCluster&#39;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_error_reason</span> <span class="o">=</span> <span class="n">json_task</span><span class="p">[</span><span class="s">&#39;errorReason&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&#39;errorReason&#39;</span> <span class="ow">in</span> <span class="n">json_task</span> <span class="k">else</span> <span class="s">&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="o">=</span> <span class="n">json_task</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="n">json_task</span><span class="p">[</span><span class="s">&#39;state&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rescount</span> <span class="o">&lt;</span> <span class="n">json_task</span><span class="p">[</span><span class="s">&#39;resultsCount&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dirty</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rescount</span> <span class="o">=</span> <span class="n">json_task</span><span class="p">[</span><span class="s">&#39;resultsCount&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="QTask.commit"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.commit">[docs]</a>    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Replicate local changes on the current object instance to the REST API</span>
+
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_json</span><span class="p">()</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_put</span><span class="p">(</span><span class="n">get_url</span><span class="p">(</span><span class="s">&#39;task update&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">),</span> <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingTaskException</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="QTask.wait"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.wait">[docs]</a>    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Wait for this task until it is completed.</span>
+
+<span class="sd">        :param float timeout: maximum time (in seconds) to wait before returning</span>
+<span class="sd">           (None =&gt; no timeout)</span>
+
+<span class="sd">        :rtype: :class:`string`</span>
+<span class="sd">        :returns: Is the task finished</span>
+
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.task.MissingTaskException: task does not represent a valid</span>
+<span class="sd">          one</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="n">nap</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span> <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="mi">10</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="ow">in</span> <span class="n">RUNNING_DOWNLOADING_STATES</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">nap</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+                <span class="k">if</span> <span class="n">timeout</span> <span class="o">&lt;=</span> <span class="n">elapsed</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+                    <span class="k">return</span> <span class="bp">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">nap</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">-</span> <span class="n">elapsed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="QTask.snapshot"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Start snapshooting results.</span>
+<span class="sd">        If called, this task&#39;s results will be periodically</span>
+<span class="sd">        updated, instead of only being available at the end.</span>
+
+<span class="sd">        Snapshots will be taken every *interval* second from the time</span>
+<span class="sd">        the task is submitted.</span>
+
+<span class="sd">        :param int interval: the interval in seconds at which to take snapshots</span>
+
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.task.MissingTaskException: task does not represent a</span>
+<span class="sd">          valid one</span>
+
+<span class="sd">        .. note:: To get the temporary results, call :meth:`results`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_snapshots</span> <span class="o">=</span> <span class="n">interval</span>
+            <span class="k">return</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="n">get_url</span><span class="p">(</span><span class="s">&#39;task snapshot&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">),</span>
+                                      <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;interval&quot;</span> <span class="p">:</span> <span class="n">interval</span><span class="p">})</span>
+
+        <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">400</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingTaskException</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_snapshots</span> <span class="o">=</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="QTask.instant"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.instant">[docs]</a>    <span class="k">def</span> <span class="nf">instant</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="c">#change to snapshot and other to snapshot_periodic ?</span>
+        <span class="sd">&quot;&quot;&quot;Make a snapshot of the current task.</span>
+
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.task.MissingTaskException: task does not represent a</span>
+<span class="sd">          valid one</span>
+
+<span class="sd">        .. note:: To get the temporary results, call :meth:`results`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="n">get_url</span><span class="p">(</span><span class="s">&#39;task instant&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">),</span>
+                                      <span class="n">json</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingTaskException</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="QTask.state"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.state">[docs]</a>    <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`string`</span>
+
+<span class="sd">        State of the task.</span>
+
+<span class="sd">        Value is in</span>
+<span class="sd">           * UnSubmitted</span>
+<span class="sd">           * Submitted</span>
+<span class="sd">           * PartiallyDispatched</span>
+<span class="sd">           * FullyDispatched</span>
+<span class="sd">           * PartiallyExecuting</span>
+<span class="sd">           * FullyExecuting</span>
+<span class="sd">           * DownloadingResults</span>
+<span class="sd">           * Cancelled</span>
+<span class="sd">           * Success</span>
+<span class="sd">           * Failure</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">           this is the state of the task when the object was retrieved,</span>
+<span class="sd">           call :meth:`results` for up to date value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_update</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">resources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`~qapy.disk.QDisk`</span>
+
+<span class="sd">        Represents resource files.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resource_disk</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resource_disk_id</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">_disk</span> <span class="o">=</span> <span class="n">disk</span><span class="o">.</span><span class="n">QDisk</span><span class="o">.</span><span class="n">_create</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="p">,</span>
+                                           <span class="s">&quot;Resources: </span><span class="se">\&quot;</span><span class="s">{0}</span><span class="se">\&quot;</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">),</span>
+                                           <span class="n">force</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_force</span><span class="p">,</span>
+                                           <span class="n">lock</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">resource_disk_id</span> <span class="o">=</span> <span class="n">_disk</span><span class="o">.</span><span class="n">uuid</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_disk</span> <span class="o">=</span> <span class="n">disk</span><span class="o">.</span><span class="n">QDisk</span><span class="o">.</span><span class="n">_retrieve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="p">,</span>
+                                              <span class="bp">self</span><span class="o">.</span><span class="n">_resource_disk_id</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_resource_disk</span> <span class="o">=</span> <span class="n">_disk</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_update</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resource_disk</span>
+
+    <span class="nd">@resources.setter</span>
+<div class="viewcode-block" id="QTask.resources"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.resources">[docs]</a>    <span class="k">def</span> <span class="nf">resources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This is a setter.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resource_disk</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_resource_disk_id</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_resource_disk_id</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">uuid</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="QTask.results"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.results">[docs]</a>    <span class="k">def</span> <span class="nf">results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`~qapy.disk.QDisk`</span>
+
+<span class="sd">        Represents results files.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result_disk</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_result_disk</span> <span class="o">=</span> <span class="n">disk</span><span class="o">.</span><span class="n">QDisk</span><span class="o">.</span><span class="n">_retrieve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="p">,</span>
+                                                     <span class="bp">self</span><span class="o">.</span><span class="n">_result_disk_id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_update</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result_disk</span>
+</div>
+<div class="viewcode-block" id="QTask.download_results"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.download_results">[docs]</a>    <span class="k">def</span> <span class="nf">download_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Download results in given *output_dir*.</span>
+
+<span class="sd">        :rtype: :class:`str`</span>
+<span class="sd">        :returns: The path containing task results.</span>
+
+<span class="sd">        .. warning:: Will override *output_dir* content.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dirty</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">file_info</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">:</span>
+                <span class="n">outpath</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">file_info</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span><span class="n">file_info</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span>
+                                                           <span class="n">outpath</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">output_dir</span>
+</div>
+<div class="viewcode-block" id="QTask.stdout"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.stdout">[docs]</a>    <span class="k">def</span> <span class="nf">stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the standard output of the task</span>
+<span class="sd">        since the submission of the task.</span>
+
+<span class="sd">        :rtype: :class:`str`</span>
+<span class="sd">        :returns: The standard ouput.</span>
+
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.task.MissingTaskException: task does not represent a</span>
+<span class="sd">          valid one</span>
+
+<span class="sd">        .. note:: The buffer is circular, if stdout is too big, prefer calling</span>
+<span class="sd">          :meth:`fresh_stdout` regularly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&quot;&quot;</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span>
+            <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;task stdout&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingTaskException</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resp</span><span class="o">.</span><span class="n">text</span>
+</div>
+<div class="viewcode-block" id="QTask.fresh_stdout"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.fresh_stdout">[docs]</a>    <span class="k">def</span> <span class="nf">fresh_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get what has been written on the standard output since last time</span>
+<span class="sd">        this function was called or since the task has been submitted.</span>
+
+<span class="sd">        :rtype: :class:`str`</span>
+<span class="sd">        :returns: The new output since last call.</span>
+
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.task.MissingTaskException: task does not represent a</span>
+<span class="sd">          valid one</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&quot;&quot;</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span>
+            <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;task stdout&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingTaskException</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">resp</span><span class="o">.</span><span class="n">text</span>
+</div>
+<div class="viewcode-block" id="QTask.stderr"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.stderr">[docs]</a>    <span class="k">def</span> <span class="nf">stderr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the standard error of the task</span>
+<span class="sd">        since the submission of the task.</span>
+
+<span class="sd">        :rtype: :class:`str`</span>
+<span class="sd">        :returns: The standard error.</span>
+
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.task.MissingTaskException: task does not represent a</span>
+<span class="sd">          valid one</span>
+
+<span class="sd">        .. note:: The buffer is circular, if stderr is too big, prefer calling</span>
+<span class="sd">          :meth:`fresh_stderr` regularly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&quot;&quot;</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span>
+            <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;task stderr&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingTaskException</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">resp</span><span class="o">.</span><span class="n">text</span>
+</div>
+<div class="viewcode-block" id="QTask.fresh_stderr"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.fresh_stderr">[docs]</a>    <span class="k">def</span> <span class="nf">fresh_stderr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get what has been written on the standard error since last time</span>
+<span class="sd">        this function was called or since the task has been submitted.</span>
+
+<span class="sd">        :rtype: :class:`str`</span>
+<span class="sd">        :returns: The new error messages since last call.</span>
+
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.task.MissingTaskException: task does not represent a</span>
+<span class="sd">          valid one</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&quot;&quot;</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span>
+            <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;task stderr&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingTaskException</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">resp</span><span class="o">.</span><span class="n">text</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="QTask.uuid"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.uuid">[docs]</a>    <span class="k">def</span> <span class="nf">uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`string`</span>
+
+<span class="sd">        The task&#39;s uuid.</span>
+
+<span class="sd">        Automatically set when a task is submitted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_update</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`string`</span>
+
+<span class="sd">        The task&#39;s name.</span>
+
+<span class="sd">        Can be set until :meth:`run` is called</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_update</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@name.setter</span>
+<div class="viewcode-block" id="QTask.name"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.name">[docs]</a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Setter for name.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;can&#39;t set attribute on a launched task&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`string`</span>
+
+<span class="sd">        The profile to run the task with.</span>
+
+<span class="sd">        Can be set until :meth:`run` is called.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_update</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span>
+
+    <span class="nd">@profile.setter</span>
+<div class="viewcode-block" id="QTask.profile"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.profile">[docs]</a>    <span class="k">def</span> <span class="nf">profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;setter for profile&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;can&#39;t set attribute on a launched task&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">framecount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`int`</span>
+
+<span class="sd">        Number of frames needed for the task.</span>
+
+<span class="sd">        Can be set until :meth:`run` is called.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_update</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_framecount</span>
+
+    <span class="nd">@framecount.setter</span>
+<div class="viewcode-block" id="QTask.framecount"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.framecount">[docs]</a>    <span class="k">def</span> <span class="nf">framecount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Setter for framecount.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;can&#39;t set attribute on a launched task&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_framecount</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">advanced_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`string`</span>
+
+<span class="sd">        Advanced frame range selection.</span>
+
+<span class="sd">        Allows to select which frames will be computed.</span>
+<span class="sd">        Should be None or match the following extended regular expression</span>
+<span class="sd">        &quot;&quot;&quot;</span><span class="s">r&quot;&quot;&quot;**&quot;(\\[[0-9]+-[0-9]+\\])( \\[[0-9]+-[0-9]+\\])*&quot;**</span>
+
+<span class="s">        This parameter will override :attr:`framecount`.</span>
+<span class="s">        *[min-max]* will generate (max - min) frames from min to max (excluded).</span>
+
+<span class="s">        Can be set until :meth:`run` is called.</span>
+<span class="s">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_update</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_advanced_range</span>
+
+    <span class="nd">@advanced_range.setter</span>
+<div class="viewcode-block" id="QTask.advanced_range"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.advanced_range">[docs]</a>    <span class="k">def</span> <span class="nf">advanced_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Setter for advanced_range.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_advanced_range</span> <span class="o">=</span> <span class="n">value</span>
+
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">snapshot_whitelist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Snapshot white list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_update</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_snapshot_whitelist</span>
+
+    <span class="nd">@snapshot_whitelist.setter</span>
+<div class="viewcode-block" id="QTask.snapshot_whitelist"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.snapshot_whitelist">[docs]</a>    <span class="k">def</span> <span class="nf">snapshot_whitelist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Setter for snapshot whitelist, this can only be set before tasks submission</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_snapshot_whitelist</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">snapshot_blacklist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Snapshot black list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_update</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_snapshot_blacklist</span>
+
+    <span class="nd">@snapshot_blacklist.setter</span>
+<div class="viewcode-block" id="QTask.snapshot_blacklist"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.snapshot_blacklist">[docs]</a>    <span class="k">def</span> <span class="nf">snapshot_blacklist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Setter for snapshot blacklist, this can only be set before tasks submission</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_snapshot_blacklist</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">results_whitelist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Results whitelist</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_update</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results_whitelist</span>
+
+    <span class="nd">@results_whitelist.setter</span>
+<div class="viewcode-block" id="QTask.results_whitelist"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.results_whitelist">[docs]</a>    <span class="k">def</span> <span class="nf">results_whitelist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Setter for results whitelist, this can only be set before tasks submission</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_results_whitelist</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">results_blacklist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Results blacklist</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_update</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results_blacklist</span>
+
+    <span class="nd">@results_blacklist.setter</span>
+<div class="viewcode-block" id="QTask.results_blacklist"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.results_blacklist">[docs]</a>    <span class="k">def</span> <span class="nf">results_blacklist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Setter for results blacklist, this can only be set before tasks submission</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_results_blacklist</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="QTask.execution_cluster"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.execution_cluster">[docs]</a>    <span class="k">def</span> <span class="nf">execution_cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Various statistics about running task</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_update</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execution_cluster</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="QTask.error_reason"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.error_reason">[docs]</a>    <span class="k">def</span> <span class="nf">error_reason</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Error reason if any, empty string if none</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_update</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_error_reason</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">auto_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Auto update state, default to True</span>
+<span class="sd">           When auto update is disabled properties will always return cached value </span>
+<span class="sd">           for the object and a call to :meth:`update` will be required to get latest values from the REST Api.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_update</span>
+
+    <span class="nd">@auto_update.setter</span>
+<div class="viewcode-block" id="QTask.auto_update"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.auto_update">[docs]</a>    <span class="k">def</span> <span class="nf">auto_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Setter for auto_update feature</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_auto_update</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">update_cache_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Cache expiration time, default to 5s</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_cache_time</span>
+
+    <span class="nd">@update_cache_time.setter</span>
+<div class="viewcode-block" id="QTask.update_cache_time"><a class="viewcode-back" href="../../qapy.html#qapy.task.QTask.update_cache_time">[docs]</a>    <span class="k">def</span> <span class="nf">update_cache_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Setter for update_cache_time</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_cache_time</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="k">def</span> <span class="nf">_to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a dict ready to be json packed from this task.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resources</span> <span class="c">#init resource_disk if not done</span>
+        <span class="n">const_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="n">key</span><span class="p">,</span> <span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">]</span>
+        <span class="n">constr_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="n">key</span><span class="p">,</span> <span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">]</span>
+
+        <span class="n">json_task</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span>
+            <span class="s">&#39;profile&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span><span class="p">,</span>
+            <span class="s">&#39;resourceDisk&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resource_disk</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="s">&#39;constants&#39;</span><span class="p">:</span> <span class="n">const_list</span><span class="p">,</span>
+            <span class="s">&#39;constraints&#39;</span><span class="p">:</span> <span class="n">constr_list</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_advanced_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">json_task</span><span class="p">[</span><span class="s">&#39;advancedRanges&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_advanced_range</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">json_task</span><span class="p">[</span><span class="s">&#39;frameCount&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_framecount</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_snapshot_whitelist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">json_task</span><span class="p">[</span><span class="s">&#39;snapshotWhitelist&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_snapshot_whitelist</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_snapshot_blacklist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">json_task</span><span class="p">[</span><span class="s">&#39;snapshotBlacklist&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_snapshot_blacklist</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results_whitelist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">json_task</span><span class="p">[</span><span class="s">&#39;resultsWhitelist&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results_whitelist</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results_blacklist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">json_task</span><span class="p">[</span><span class="s">&#39;resultsBlacklist&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results_blacklist</span>
+        <span class="k">return</span> <span class="n">json_task</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&#39;{0} - {1} - {2} - FrameCount : {3} - {4} - Resources : {5} - Results : {6}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_framecount</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_resource_disk</span><span class="o">.</span><span class="n">uuid</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resource_disk</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s">&quot;&quot;</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_result_disk</span><span class="o">.</span><span class="n">uuid</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result_disk</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s">&quot;&quot;</span><span class="p">))</span>
+
+    <span class="c">#context manager#</span>
+
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">exc_type</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">exc_type</span> <span class="o">!=</span> <span class="n">MissingTaskException</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+
+<span class="c">##############</span>
+<span class="c"># Exceptions #</span>
+<span class="c">##############</span>
+</div>
+<div class="viewcode-block" id="MissingTaskException"><a class="viewcode-back" href="../../qapy.html#qapy.task.MissingTaskException">[docs]</a><span class="k">class</span> <span class="nc">MissingTaskException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Non existant task.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MissingTaskException</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+            <span class="s">&quot;{0}: {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="MaxTaskException"><a class="viewcode-back" href="../../qapy.html#qapy.task.MaxTaskException">[docs]</a><span class="k">class</span> <span class="nc">MaxTaskException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Max number of tasks reached.&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Qarnot Computing.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

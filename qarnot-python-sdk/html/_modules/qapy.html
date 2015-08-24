@@ -1,0 +1,207 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qapy &mdash; qapy  documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="qapy  documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="fa fa-home"> qapy</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../qapy.html">qapy package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../qapy.html#module-qapy">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qapy.html#module-qapy.connection">qapy.connection module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qapy.html#module-qapy.disk">qapy.disk module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qapy.html#module-qapy.task">qapy.task module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qapy.html#qapy-notification-module">qapy.notification module</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">qapy</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      
+    <li>qapy</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <h1>Source code for qapy</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;Rest API for submitting qarnot jobs in Python.&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;task&quot;</span><span class="p">,</span> <span class="s">&quot;connection&quot;</span><span class="p">,</span> <span class="s">&quot;disk&quot;</span><span class="p">,</span> <span class="s">&quot;notification&quot;</span><span class="p">]</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&#39;0.1.0&#39;</span>
+
+
+<div class="viewcode-block" id="QApyException"><a class="viewcode-back" href="../qapy.html#qapy.QApyException">[docs]</a><span class="k">class</span> <span class="nc">QApyException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;General QApy exception&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">QApyException</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="s">&quot;Error : {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span>
+</div>
+<span class="k">def</span> <span class="nf">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">503</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">QApyException</span><span class="p">(</span><span class="s">&quot;Service Unavailable&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">QApyException</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">get_url</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get and format the url for the given key.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">urls</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;disk folder&#39;</span> <span class="p">:</span> <span class="s">&#39;/disks&#39;</span><span class="p">,</span> <span class="c">#GET -&gt; list; POST -&gt; add</span>
+        <span class="s">&#39;disk force&#39;</span> <span class="p">:</span> <span class="s">&#39;/disks/force&#39;</span><span class="p">,</span> <span class="c"># POST -&gt; force add</span>
+        <span class="s">&#39;disk info&#39;</span> <span class="p">:</span> <span class="s">&#39;/disks/{name}&#39;</span><span class="p">,</span> <span class="c"># DELETE  -&gt; remove #PUT -&gt; update</span>
+        <span class="s">&#39;get disk&#39;</span> <span class="p">:</span> <span class="s">&#39;/disks/archive/{name}.{ext}&#39;</span><span class="p">,</span> <span class="c">#GET-&gt; disk archive</span>
+        <span class="s">&#39;tree disk&#39;</span> <span class="p">:</span> <span class="s">&#39;/disks/tree/{name}&#39;</span><span class="p">,</span> <span class="c">#GET -&gt; ls on the disk</span>
+        <span class="s">&#39;link disk&#39;</span> <span class="p">:</span> <span class="s">&#39;/disks/link/{name}&#39;</span><span class="p">,</span> <span class="c">#POST -&gt; create links</span>
+        <span class="s">&#39;ls disk&#39;</span><span class="p">:</span> <span class="s">&#39;/disks/list/{name}/{path}&#39;</span><span class="p">,</span> <span class="c">#GET -&gt; ls on the dir {path}</span>
+        <span class="s">&#39;update file&#39;</span> <span class="p">:</span> <span class="s">&#39;/disks/{name}/{path}&#39;</span><span class="p">,</span> <span class="c">#POST; GET; DELETE</span>
+        <span class="s">&#39;list profiles&#39;</span><span class="p">:</span> <span class="s">&#39;/tasks/profiles&#39;</span><span class="p">,</span> <span class="c">#GET -&gt; possible profiles</span>
+        <span class="s">&#39;get profile&#39;</span> <span class="p">:</span> <span class="s">&#39;/tasks/profiles/{name}&#39;</span><span class="p">,</span> <span class="c">#GET -&gt; profile info</span>
+        <span class="s">&#39;tasks&#39;</span> <span class="p">:</span> <span class="s">&#39;/tasks&#39;</span><span class="p">,</span> <span class="c">#GET -&gt; runing tasks; POST -&gt; submit task</span>
+        <span class="s">&#39;task force&#39;</span> <span class="p">:</span> <span class="s">&#39;/tasks/force&#39;</span><span class="p">,</span> <span class="c">#POST -&gt; force add</span>
+        <span class="s">&#39;task update&#39;</span> <span class="p">:</span> <span class="s">&#39;/tasks/{uuid}&#39;</span><span class="p">,</span> <span class="c">#GET-&gt;result, DELETE-&gt;abort, #PATCH-&gt;update resources</span>
+        <span class="s">&#39;task snapshot&#39;</span><span class="p">:</span> <span class="s">&#39;/tasks/{uuid}/snapshot/periodic&#39;</span><span class="p">,</span> <span class="c">#POST -&gt; snapshots</span>
+        <span class="s">&#39;task instant&#39;</span> <span class="p">:</span> <span class="s">&#39;/tasks/{uuid}/snapshot&#39;</span><span class="p">,</span> <span class="c">#POST-&gt; get a snapshot</span>
+        <span class="s">&#39;task stdout&#39;</span><span class="p">:</span> <span class="s">&#39;/tasks/{uuid}/stdout&#39;</span><span class="p">,</span> <span class="c">#GET -&gt; task stdout</span>
+        <span class="s">&#39;task stderr&#39;</span><span class="p">:</span> <span class="s">&#39;/tasks/{uuid}/stderr&#39;</span><span class="p">,</span> <span class="c">#GET -&gt; task stderr</span>
+        <span class="s">&#39;user&#39;</span><span class="p">:</span> <span class="s">&#39;/info&#39;</span><span class="p">,</span> <span class="c">#GET -&gt; user info</span>
+        <span class="s">&#39;notification&#39;</span> <span class="p">:</span> <span class="s">&#39;/notifications&#39;</span><span class="p">,</span> <span class="c">#GET -&gt; notifications list #POST -&gt; add notification</span>
+        <span class="s">&#39;notification update&#39;</span> <span class="p">:</span> <span class="s">&#39;/notifications/{uuid}&#39;</span> <span class="c">#GET -&gt; notification info, #DELETE -&gt; remove notification #PUT -&gt; update</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">urls</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">qapy.connection</span>
+<span class="n">QApy</span> <span class="o">=</span> <span class="n">qapy</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">QApy</span>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Qarnot Computing.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

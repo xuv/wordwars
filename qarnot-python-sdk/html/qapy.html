@@ -1,0 +1,2214 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qapy package &mdash; qapy  documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="qapy  documentation" href="index.html"/>
+        <link rel="prev" title="Welcome to qapy’s documentation!" href="index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> qapy</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">qapy package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-qapy">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-qapy.connection">qapy.connection module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-qapy.disk">qapy.disk module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-qapy.task">qapy.task module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qapy-notification-module">qapy.notification module</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">qapy</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>qapy package</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/qapy.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="qapy-package">
+<h1>qapy package<a class="headerlink" href="#qapy-package" title="Permalink to this headline">¶</a></h1>
+<p>Qarnot API</p>
+<div class="section" id="module-qapy">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-qapy" title="Permalink to this headline">¶</a></h2>
+<p>Rest API for submitting qarnot jobs in Python.</p>
+<dl class="exception">
+<dt id="qapy.QApyException">
+<em class="property">exception </em><tt class="descclassname">qapy.</tt><tt class="descname">QApyException</tt><big>(</big><em>msg</em><big>)</big><a class="reference internal" href="_modules/qapy.html#QApyException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.QApyException" title="Permalink to this definition">¶</a></dt>
+<dd><p>General QApy exception</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-qapy.connection">
+<span id="qapy-connection-module"></span><h2>qapy.connection module<a class="headerlink" href="#module-qapy.connection" title="Permalink to this headline">¶</a></h2>
+<p>Module describing a connection.</p>
+<dl class="class">
+<dt id="qapy.connection.QApy">
+<em class="property">class </em><tt class="descclassname">qapy.connection.</tt><tt class="descname">QApy</tt><big>(</big><em>conf</em><big>)</big><a class="reference internal" href="_modules/qapy/connection.html#QApy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.connection.QApy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Represents the couple cluster/user to which submit tasks.</p>
+<dl class="method">
+<dt id="qapy.connection.QApy.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>conf</em><big>)</big><a class="reference internal" href="_modules/qapy/connection.html#QApy.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.connection.QApy.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a connection to a cluster with given config file or
+dictionary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>conf</strong> &#8211; path to a qarnot configuration file or dictionary
+containing following keys:</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>cluster_url</li>
+<li>cluster_unsafe   (optional)</li>
+<li>cluster_timeout  (optional)</li>
+<li>client_auth</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">qarnot.conf file format:</p>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>[cluster]
+# url of the REST API
+url=https://localhost
+# No SSL verification ?
+unsafe=False
+# timeout put on every GET/POST
+timeout=30
+[client]
+# auth string of the client
+auth=login
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.connection.QApy.user_info">
+<tt class="descname">user_info</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/connection.html#QApy.user_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.connection.QApy.user_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get informations of the current user on the cluster.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#qapy.connection.QUserInfo" title="qapy.connection.QUserInfo"><tt class="xref py py-class docutils literal"><span class="pre">QUserInfo</span></tt></a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Requested informations.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.connection.QApy.disks">
+<tt class="descname">disks</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/connection.html#QApy.disks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.connection.QApy.disks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of disks on this cluster for this user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">List of <a class="reference internal" href="#qapy.disk.QDisk" title="qapy.disk.QDisk"><tt class="xref py py-class docutils literal"><span class="pre">QDisk</span></tt></a>.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Disks on the cluster owned by the user.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for detailse</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.connection.QApy.profiles">
+<tt class="descname">profiles</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/connection.html#QApy.profiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.connection.QApy.profiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of available profiles for submitting tasks.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">List of <tt class="xref py py-class docutils literal"><span class="pre">str</span></tt>.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">List of the names of profiles.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.connection.QApy.profile_info">
+<tt class="descname">profile_info</tt><big>(</big><em>profile</em><big>)</big><a class="reference internal" href="_modules/qapy/connection.html#QApy.profile_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.connection.QApy.profile_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get informations about a profile.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>profile</strong> (<em>str</em>) &#8211; name of the profile</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#qapy.connection.QProfile" title="qapy.connection.QProfile"><tt class="xref py py-class docutils literal"><span class="pre">QProfile</span></tt></a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The <a class="reference internal" href="#qapy.connection.QProfile" title="qapy.connection.QProfile"><tt class="xref py py-class docutils literal"><span class="pre">QProfile</span></tt></a> corresponding to the requested profile.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><strong>ValueError</strong> &#8211; no such profile</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.connection.QApy.tasks">
+<tt class="descname">tasks</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/connection.html#QApy.tasks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.connection.QApy.tasks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of tasks stored on this cluster for this user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">List of <a class="reference internal" href="#qapy.task.QTask" title="qapy.task.QTask"><tt class="xref py py-class docutils literal"><span class="pre">QTask</span></tt></a>.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Tasks stored on the cluster owned by the user.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.connection.QApy.retrieve_task">
+<tt class="descname">retrieve_task</tt><big>(</big><em>guid</em><big>)</big><a class="reference internal" href="_modules/qapy/connection.html#QApy.retrieve_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.connection.QApy.retrieve_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve a <a class="reference internal" href="#qapy.task.QTask" title="qapy.task.QTask"><tt class="xref py py-class docutils literal"><span class="pre">qapy.task.QTask</span></tt></a> from its guid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>guid</strong> (<em>str</em>) &#8211; Desired task guid</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">QTask</span></tt></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Existing task defined by the given guid</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.task.MissingTaskException" title="qapy.task.MissingTaskException"><strong>qapy.task.MissingTaskException</strong></a> &#8211; task does not exist</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.connection.QApy.retrieve_disk">
+<tt class="descname">retrieve_disk</tt><big>(</big><em>guid</em><big>)</big><a class="reference internal" href="_modules/qapy/connection.html#QApy.retrieve_disk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.connection.QApy.retrieve_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve a <a class="reference internal" href="#qapy.disk.QDisk" title="qapy.disk.QDisk"><tt class="xref py py-class docutils literal"><span class="pre">QDisk</span></tt></a> from its guid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>guid</strong> (<em>str</em>) &#8211; Desired disk guid</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">QDisk</span></tt></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Existing disk defined by the given guid</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ValueError</strong> &#8211; no such disk</li>
+<li><a class="reference internal" href="#qapy.disk.MissingDiskException" title="qapy.disk.MissingDiskException"><strong>qapy.disk.MissingDiskException</strong></a> &#8211; disk does not exist</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.connection.QApy.create_disk">
+<tt class="descname">create_disk</tt><big>(</big><em>description</em>, <em>force=False</em>, <em>lock=False</em><big>)</big><a class="reference internal" href="_modules/qapy/connection.html#QApy.create_disk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.connection.QApy.create_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <a class="reference internal" href="#qapy.disk.QDisk" title="qapy.disk.QDisk"><tt class="xref py py-class docutils literal"><span class="pre">QDisk</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>description</strong> (<em>str</em>) &#8211; a short description of the disk</li>
+<li><strong>force</strong> (<em>bool</em>) &#8211; delete an old unlocked disk
+if maximum number of disks is reached</li>
+<li><strong>lock</strong> (<em>bool</em>) &#8211; prevents the disk to be removed
+by a subsequent <a class="reference internal" href="#qapy.connection.QApy.create_disk" title="qapy.connection.QApy.create_disk"><tt class="xref py py-meth docutils literal"><span class="pre">create_disk()</span></tt></a> with force set to True</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#qapy.disk.QDisk" title="qapy.disk.QDisk"><tt class="xref py py-class docutils literal"><span class="pre">qapy.disk.QDisk</span></tt></a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The created <a class="reference internal" href="#qapy.disk.QDisk" title="qapy.disk.QDisk"><tt class="xref py py-class docutils literal"><span class="pre">QDisk</span></tt></a>.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.connection.QApy.create_task">
+<tt class="descname">create_task</tt><big>(</big><em>name</em>, <em>profile</em>, <em>frame_nbr</em>, <em>force=False</em><big>)</big><a class="reference internal" href="_modules/qapy/connection.html#QApy.create_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.connection.QApy.create_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <a class="reference internal" href="#qapy.task.QTask" title="qapy.task.QTask"><tt class="xref py py-class docutils literal"><span class="pre">QTask</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<em>str</em>) &#8211; given name of the task</li>
+<li><strong>profile</strong> (<em>str</em>) &#8211; which profile to use with this task</li>
+<li><strong>frame_nbr</strong> (<em>int</em>) &#8211; number of frame on which to run task</li>
+<li><strong>force</strong> (<em>bool</em>) &#8211; remove an old task if the maximum number of allowed
+tasks is reached. Plus, it will delete an old unlocked disk
+if maximum number of disks is reached for resources and results</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#qapy.task.QTask" title="qapy.task.QTask"><tt class="xref py py-class docutils literal"><span class="pre">QTask</span></tt></a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The created <a class="reference internal" href="#qapy.task.QTask" title="qapy.task.QTask"><tt class="xref py py-class docutils literal"><span class="pre">QTask</span></tt></a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">See available profiles with <a class="reference internal" href="#qapy.connection.QApy.profiles" title="qapy.connection.QApy.profiles"><tt class="xref py py-meth docutils literal"><span class="pre">profiles()</span></tt></a>.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.connection.QApy.create_task_state_changed_notification">
+<tt class="descname">create_task_state_changed_notification</tt><big>(</big><em>destination</em>, <em>filterkey</em>, <em>filtervalue</em>, <em>template=None</em>, <em>toregex=None</em>, <em>fromregex=None</em>, <em>stateregex=None</em><big>)</big><a class="reference internal" href="_modules/qapy/connection.html#QApy.create_task_state_changed_notification"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.connection.QApy.create_task_state_changed_notification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <a class="reference internal" href="#qapy.notification.QNotification" title="qapy.notification.QNotification"><tt class="xref py py-class docutils literal"><span class="pre">qapy.notification.QNotification</span></tt></a> with a filter of type <a class="reference internal" href="#qapy.notification.TaskStateChanged" title="qapy.notification.TaskStateChanged"><tt class="xref py py-class docutils literal"><span class="pre">qapy.notification.TaskStateChanged</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>destination</strong> (<em>str</em>) &#8211; e-mail address</li>
+<li><strong>filterkey</strong> (<em>str</em>) &#8211; key to watch on tasks</li>
+<li><strong>filtervalue</strong> (<em>str</em>) &#8211; regex to match for the filter key</li>
+<li><strong>template</strong> (<em>str</em>) &#8211; (optionnal) Template for the notification</li>
+<li><strong>toregex</strong> (<em>str</em>) &#8211; (optional) Regex to match the &#8220;To&#8221; value on a state change, default to &#8221;.*&#8221;</li>
+<li><strong>fromregex</strong> (<em>str</em>) &#8211; (optional) Regex to match the &#8220;From&#8221; value on a state change, default to &#8221;.*&#8221;</li>
+<li><strong>stateregex</strong> (<em>str</em>) &#8211; (optional) Regex to match the &#8220;From&#8221; or &#8220;To&#8221; value on a state change, default to &#8221;.*&#8221;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.connection.QApy.create_task_created_notification">
+<tt class="descname">create_task_created_notification</tt><big>(</big><em>destination</em>, <em>filterkey</em>, <em>filtervalue</em>, <em>template=None</em><big>)</big><a class="reference internal" href="_modules/qapy/connection.html#QApy.create_task_created_notification"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.connection.QApy.create_task_created_notification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <a class="reference internal" href="#qapy.notification.QNotification" title="qapy.notification.QNotification"><tt class="xref py py-class docutils literal"><span class="pre">qapy.notification.QNotification</span></tt></a> with a filter of type <a class="reference internal" href="#qapy.notification.TaskCreated" title="qapy.notification.TaskCreated"><tt class="xref py py-class docutils literal"><span class="pre">qapy.notification.TaskCreated</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>destination</strong> (<em>str</em>) &#8211; e-mail address</li>
+<li><strong>filterkey</strong> (<em>str</em>) &#8211; key to watch on tasks</li>
+<li><strong>filtervalue</strong> (<em>str</em>) &#8211; regex to match for the filter key</li>
+<li><strong>template</strong> (<em>str</em>) &#8211; (optionnal) Template for the notification</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.connection.QApy.create_task_ended_notification">
+<tt class="descname">create_task_ended_notification</tt><big>(</big><em>destination</em>, <em>filterkey</em>, <em>filtervalue</em>, <em>template=None</em><big>)</big><a class="reference internal" href="_modules/qapy/connection.html#QApy.create_task_ended_notification"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.connection.QApy.create_task_ended_notification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <a class="reference internal" href="#qapy.notification.QNotification" title="qapy.notification.QNotification"><tt class="xref py py-class docutils literal"><span class="pre">qapy.notification.QNotification</span></tt></a> with a filter of type <a class="reference internal" href="#qapy.notification.TaskEnded" title="qapy.notification.TaskEnded"><tt class="xref py py-class docutils literal"><span class="pre">qapy.notification.TaskEnded</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>destination</strong> (<em>str</em>) &#8211; e-mail address</li>
+<li><strong>filterkey</strong> (<em>str</em>) &#8211; key to watch on tasks</li>
+<li><strong>filtervalue</strong> (<em>str</em>) &#8211; regex to match for the filter key</li>
+<li><strong>template</strong> (<em>str</em>) &#8211; (optionnal) Template for the notification</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.connection.QApy.notifications">
+<tt class="descname">notifications</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/connection.html#QApy.notifications"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.connection.QApy.notifications" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of notifications for the user</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">List of :class:~qapy.task.QNotification`.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">List of all notifications belonging to the user</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.connection.QApy.retrieve_notification">
+<tt class="descname">retrieve_notification</tt><big>(</big><em>notification_guid</em><big>)</big><a class="reference internal" href="_modules/qapy/connection.html#QApy.retrieve_notification"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.connection.QApy.retrieve_notification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve a :class:~qapy.notification.QNotification` from it&#8217;s guid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>notification_guid</strong> (<em>str</em>) &#8211; Id of the notification</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">QNotification</span></tt></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Existing notification defined by the given guid</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="qapy.connection.QUserInfo">
+<em class="property">class </em><tt class="descclassname">qapy.connection.</tt><tt class="descname">QUserInfo</tt><big>(</big><em>info</em><big>)</big><a class="reference internal" href="_modules/qapy/connection.html#QUserInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.connection.QUserInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Informations about a qapy user.</p>
+<dl class="attribute">
+<dt id="qapy.connection.QUserInfo.diskCount">
+<tt class="descname">diskCount</tt><em class="property"> = None</em><a class="headerlink" href="#qapy.connection.QUserInfo.diskCount" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">int</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>Number of disks owned by the user.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.connection.QUserInfo.maxDisk">
+<tt class="descname">maxDisk</tt><em class="property"> = None</em><a class="headerlink" href="#qapy.connection.QUserInfo.maxDisk" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">int</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>Maximum number of disks allowed (resource and result disks).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.connection.QUserInfo.quotaBytes">
+<tt class="descname">quotaBytes</tt><em class="property"> = None</em><a class="headerlink" href="#qapy.connection.QUserInfo.quotaBytes" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">int</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>Total storage space allowed for the user&#8217;s disks (in Bytes).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.connection.QUserInfo.usedQuotaBytes">
+<tt class="descname">usedQuotaBytes</tt><em class="property"> = None</em><a class="headerlink" href="#qapy.connection.QUserInfo.usedQuotaBytes" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">int</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>Total storage space used by the user&#8217;s disks (in Bytes).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.connection.QUserInfo.taskCount">
+<tt class="descname">taskCount</tt><em class="property"> = None</em><a class="headerlink" href="#qapy.connection.QUserInfo.taskCount" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">int</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>Total number of tasks belonging to the user.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.connection.QUserInfo.maxTask">
+<tt class="descname">maxTask</tt><em class="property"> = None</em><a class="headerlink" href="#qapy.connection.QUserInfo.maxTask" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">int</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>Maximum number of tasks the user is allowed to create.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.connection.QUserInfo.runningTaskCount">
+<tt class="descname">runningTaskCount</tt><em class="property"> = None</em><a class="headerlink" href="#qapy.connection.QUserInfo.runningTaskCount" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">int</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>Number of tasks currently in &#8216;Submitted&#8217; state.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.connection.QUserInfo.maxRunningTask">
+<tt class="descname">maxRunningTask</tt><em class="property"> = None</em><a class="headerlink" href="#qapy.connection.QUserInfo.maxRunningTask" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">int</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>Maximum number of running tasks.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.connection.QUserInfo.maxInstances">
+<tt class="descname">maxInstances</tt><em class="property"> = None</em><a class="headerlink" href="#qapy.connection.QUserInfo.maxInstances" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">int</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>Maximum number of frames per task.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.connection.QUserInfo.executionTime">
+<tt class="descname">executionTime</tt><em class="property"> = None</em><a class="headerlink" href="#qapy.connection.QUserInfo.executionTime" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">int</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>Total computation time.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="qapy.connection.QProfile">
+<em class="property">class </em><tt class="descclassname">qapy.connection.</tt><tt class="descname">QProfile</tt><big>(</big><em>info</em><big>)</big><a class="reference internal" href="_modules/qapy/connection.html#QProfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.connection.QProfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Informations about a profile.</p>
+<dl class="attribute">
+<dt id="qapy.connection.QProfile.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#qapy.connection.QProfile.name" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">str</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>Name of the profile.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.connection.QProfile.constants">
+<tt class="descname">constants</tt><em class="property"> = None</em><a class="headerlink" href="#qapy.connection.QProfile.constants" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">List of (<tt class="xref py py-class docutils literal"><span class="pre">str</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">str</span></tt>)</td>
+</tr>
+</tbody>
+</table>
+<p>List of couples (name, value) representing constants for this profile
+and their default values.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="qapy.connection.UnauthorizedException">
+<em class="property">exception </em><tt class="descclassname">qapy.connection.</tt><tt class="descname">UnauthorizedException</tt><big>(</big><em>auth</em><big>)</big><a class="reference internal" href="_modules/qapy/connection.html#UnauthorizedException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.connection.UnauthorizedException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Authorization given is not valid.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-qapy.disk">
+<span id="qapy-disk-module"></span><h2>qapy.disk module<a class="headerlink" href="#module-qapy.disk" title="Permalink to this headline">¶</a></h2>
+<p>Module for disk object.</p>
+<dl class="class">
+<dt id="qapy.disk.QDisk">
+<em class="property">class </em><tt class="descclassname">qapy.disk.</tt><tt class="descname">QDisk</tt><big>(</big><em>jsondisk</em>, <em>connection</em><big>)</big><a class="reference internal" href="_modules/qapy/disk.html#QDisk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QDisk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Represents a resource/result disk on the cluster.</p>
+<p>This class is the interface to manage resources or results from a
+<a class="reference internal" href="#qapy.task.QTask" title="qapy.task.QTask"><tt class="xref py py-class docutils literal"><span class="pre">qapy.task.QTask</span></tt></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Paths given as &#8216;remote&#8217; arguments,
+(or as path arguments for <a class="reference internal" href="#qapy.disk.QDisk.directory" title="qapy.disk.QDisk.directory"><tt class="xref py py-func docutils literal"><span class="pre">QDisk.directory()</span></tt></a>)
+<strong>must</strong> be valid unix-like paths.</p>
+</div>
+<dl class="method">
+<dt id="qapy.disk.QDisk.update">
+<tt class="descname">update</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/disk.html#QDisk.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QDisk.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="qapy.disk.QDisk.delete">
+<tt class="descname">delete</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/disk.html#QDisk.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QDisk.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the disk represented by this <a class="reference internal" href="#qapy.disk.QDisk" title="qapy.disk.QDisk"><tt class="xref py py-class docutils literal"><span class="pre">QDisk</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.disk.MissingDiskException" title="qapy.disk.MissingDiskException"><strong>qapy.disk.MissingDiskException</strong></a> &#8211; the disk is not on the server</li>
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.disk.QDisk.get_archive">
+<tt class="descname">get_archive</tt><big>(</big><em>extension='zip'</em>, <em>local=None</em><big>)</big><a class="reference internal" href="_modules/qapy/disk.html#QDisk.get_archive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QDisk.get_archive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an archive of this disk&#8217;s content.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>extension</strong> (<em>str</em>) &#8211; in {&#8216;tar&#8217;, &#8216;tgz&#8217;, &#8216;zip&#8217;},
+format of the archive to get</li>
+<li><strong>local</strong> (<em>str</em>) &#8211; name of the file to output to</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">str</span></tt></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The filename of the retrieved archive.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.disk.MissingDiskException" title="qapy.disk.MissingDiskException"><strong>qapy.disk.MissingDiskException</strong></a> &#8211; the disk is not on the server</li>
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><strong>ValueError</strong> &#8211; invalid extension format</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.disk.QDisk.list_files">
+<tt class="descname">list_files</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/disk.html#QDisk.list_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QDisk.list_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>List files on the whole disk.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">List of <a class="reference internal" href="#qapy.disk.QFileInfo" title="qapy.disk.QFileInfo"><tt class="xref py py-class docutils literal"><span class="pre">QFileInfo</span></tt></a>.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">List of the files on the disk.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.disk.MissingDiskException" title="qapy.disk.MissingDiskException"><strong>qapy.disk.MissingDiskException</strong></a> &#8211; the disk is not on the server</li>
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.disk.QDisk.directory">
+<tt class="descname">directory</tt><big>(</big><em>directory=''</em><big>)</big><a class="reference internal" href="_modules/qapy/disk.html#QDisk.directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QDisk.directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>List files in a directory of the disk. Doesn&#8217;t go through
+subdirectories.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>directory</strong> (<em>str</em>) &#8211; path of the directory to inspect.
+Must be unix-like.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">List of <a class="reference internal" href="#qapy.disk.QFileInfo" title="qapy.disk.QFileInfo"><tt class="xref py py-class docutils literal"><span class="pre">QFileInfo</span></tt></a>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Files in the given directory on the <a class="reference internal" href="#qapy.disk.QDisk" title="qapy.disk.QDisk"><tt class="xref py py-class docutils literal"><span class="pre">QDisk</span></tt></a>.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.disk.MissingDiskException" title="qapy.disk.MissingDiskException"><strong>qapy.disk.MissingDiskException</strong></a> &#8211; the disk is not on the server</li>
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Paths in results are relative to the <em>directory</em> argument.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.disk.QDisk.sync_directory">
+<tt class="descname">sync_directory</tt><big>(</big><em>directory</em>, <em>verbose=False</em><big>)</big><a class="reference internal" href="_modules/qapy/disk.html#QDisk.sync_directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QDisk.sync_directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Synchronize a local directory with the remote disks.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>directory</strong> (<em>str</em>) &#8211; The local directory to use for synchronization</li>
+<li><strong>verbose</strong> (<em>bool</em>) &#8211; Print information about synchronization operations</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>Local changes are reflected on the server, a file present on the disk but
+not in the local directory will be deleted from the disk.</p>
+<p class="last">A file present in the directory but not in the disk will be uploaded.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The following parameters are used to determine wether synchronization is required :</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li>name</li>
+<li>size</li>
+<li>sha1sum</li>
+</ul>
+</div></blockquote>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.disk.QDisk.sync_files">
+<tt class="descname">sync_files</tt><big>(</big><em>files</em>, <em>verbose=False</em><big>)</big><a class="reference internal" href="_modules/qapy/disk.html#QDisk.sync_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QDisk.sync_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Synchronize files  with the remote disks.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>files</strong> (<em>dict</em>) &#8211; Dictionnary of synchronized files</li>
+<li><strong>verbose</strong> (<em>bool</em>) &#8211; Print information about synchronization operations</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Dictionnary key is the remote file path while value is the local file path.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>Local changes are reflected on the server, a file present on the disk but
+not in the local directory will be deleted from the disk.</p>
+<p class="last">A file present in the directory but not in the disk will be uploaded.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The following parameters are used to determine wether synchronization is required :</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li>name</li>
+<li>size</li>
+<li>sha1sum</li>
+</ul>
+</div></blockquote>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.disk.QDisk.flush">
+<tt class="descname">flush</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/disk.html#QDisk.flush"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QDisk.flush" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure all files added through <a class="reference internal" href="#qapy.disk.QDisk.add_file" title="qapy.disk.QDisk.add_file"><tt class="xref py py-meth docutils literal"><span class="pre">add_file()</span></tt></a>/<a class="reference internal" href="#qapy.disk.QDisk.add_directory" title="qapy.disk.QDisk.add_directory"><tt class="xref py py-meth docutils literal"><span class="pre">add_directory()</span></tt></a>
+are on the disk.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.disk.MissingDiskException" title="qapy.disk.MissingDiskException"><strong>qapy.disk.MissingDiskException</strong></a> &#8211; the disk is not on the server</li>
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><strong>TypeError</strong> &#8211; trying to write on a R/O disk</li>
+<li><strong>IOError</strong> &#8211; user space quota reached</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.disk.QDisk.add_link">
+<tt class="descname">add_link</tt><big>(</big><em>target</em>, <em>linkname</em><big>)</big><a class="reference internal" href="_modules/qapy/disk.html#QDisk.add_link"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QDisk.add_link" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create link between files on the disk</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>target</strong> (<em>str</em>) &#8211; name of the existing file to duplicate</li>
+<li><strong>linkname</strong> (<em>str</em>) &#8211; name of the created file</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">File size is counted twice, this method is meant to save upload time, not space.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.disk.MissingDiskException" title="qapy.disk.MissingDiskException"><strong>qapy.disk.MissingDiskException</strong></a> &#8211; the disk is not on the server</li>
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.disk.QDisk.add_file">
+<tt class="descname">add_file</tt><big>(</big><em>local</em>, <em>remote=None</em>, <em>mode=None</em><big>)</big><a class="reference internal" href="_modules/qapy/disk.html#QDisk.add_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QDisk.add_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a file on the disk.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You can also use <strong>disk[remote] = local</strong></p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">In non blocking mode, you may receive an exception during an other
+operation (like <a class="reference internal" href="#qapy.disk.QDisk.flush" title="qapy.disk.QDisk.flush"><tt class="xref py py-meth docutils literal"><span class="pre">flush()</span></tt></a>).</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>local</strong> (<em>str</em>) &#8211; name of the local file</li>
+<li><strong>remote</strong> (<em>str</em>) &#8211; name of the remote file
+(defaults to <em>local</em>)</li>
+<li><strong>mode</strong> (<a class="reference internal" href="#qapy.disk.QUploadMode" title="qapy.disk.QUploadMode"><tt class="xref py py-class docutils literal"><span class="pre">QUploadMode</span></tt></a>) &#8211; mode with which to add the file
+(defaults to <a class="reference internal" href="#qapy.disk.QUploadMode.blocking" title="qapy.disk.QUploadMode.blocking"><tt class="xref py py-attr docutils literal"><span class="pre">blocking</span></tt></a> if not set by <a class="reference internal" href="#qapy.disk.QDisk.add_mode" title="qapy.disk.QDisk.add_mode"><tt class="xref py py-attr docutils literal"><span class="pre">QDisk.add_mode</span></tt></a>)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.disk.MissingDiskException" title="qapy.disk.MissingDiskException"><strong>qapy.disk.MissingDiskException</strong></a> &#8211; the disk is not on the server</li>
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><strong>TypeError</strong> &#8211; trying to write on a R/O disk</li>
+<li><strong>IOError</strong> &#8211; user space quota reached</li>
+<li><strong>ValueError</strong> &#8211; file could not be created</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.disk.QDisk.add_directory">
+<tt class="descname">add_directory</tt><big>(</big><em>local</em>, <em>remote=''</em>, <em>mode=None</em><big>)</big><a class="reference internal" href="_modules/qapy/disk.html#QDisk.add_directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QDisk.add_directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a directory to the disk. Does not follow symlinks.
+File hierarchy is preserved.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You can also use <strong>disk[remote] = local</strong></p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">In non blocking mode, you may receive an exception during an other
+operation (like <a class="reference internal" href="#qapy.disk.QDisk.flush" title="qapy.disk.QDisk.flush"><tt class="xref py py-meth docutils literal"><span class="pre">flush()</span></tt></a>).</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>local</strong> (<em>str</em>) &#8211; path of the local directory to add</li>
+<li><strong>remote</strong> (<em>str</em>) &#8211; path of the directory on remote node
+(defaults to <em>local</em>)</li>
+<li><strong>mode</strong> (<a class="reference internal" href="#qapy.disk.QUploadMode" title="qapy.disk.QUploadMode"><tt class="xref py py-class docutils literal"><span class="pre">QUploadMode</span></tt></a>) &#8211; the mode with which to add the directory
+(defaults to <a class="reference internal" href="#qapy.disk.QDisk.add_mode" title="qapy.disk.QDisk.add_mode"><tt class="xref py py-attr docutils literal"><span class="pre">add_mode</span></tt></a>)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.disk.MissingDiskException" title="qapy.disk.MissingDiskException"><strong>qapy.disk.MissingDiskException</strong></a> &#8211; the disk is not on the server</li>
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><strong>ValueError</strong> &#8211; one or more file(s) could not be created</li>
+<li><strong>IOError</strong> &#8211; not a valid directory</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.disk.QDisk.get_file">
+<tt class="descname">get_file</tt><big>(</big><em>remote</em>, <em>local=None</em><big>)</big><a class="reference internal" href="_modules/qapy/disk.html#QDisk.get_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QDisk.get_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a file from the disk.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You can also use <strong>disk[file]</strong></p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Doesn&#8217;t work with directories. Prefer the use of <a class="reference internal" href="#qapy.disk.QDisk.get_archive" title="qapy.disk.QDisk.get_archive"><tt class="xref py py-meth docutils literal"><span class="pre">get_archive()</span></tt></a>.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>remote</strong> (<em>str</em>) &#8211; the name of the remote file</li>
+<li><strong>local</strong> (<em>str</em>) &#8211; local name of the retrieved file
+(defaults to <em>remote</em>)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">string</span></tt></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The name of the output file.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.disk.MissingDiskException" title="qapy.disk.MissingDiskException"><strong>qapy.disk.MissingDiskException</strong></a> &#8211; the disk is not on the server</li>
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><strong>ValueError</strong> &#8211; no such file
+(<tt class="xref py py-exc docutils literal"><span class="pre">KeyError</span></tt> with disk[file] syntax)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.disk.QDisk.delete_file">
+<tt class="descname">delete_file</tt><big>(</big><em>remote</em><big>)</big><a class="reference internal" href="_modules/qapy/disk.html#QDisk.delete_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QDisk.delete_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a file from the disk.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You can also use <strong>del disk[file]</strong></p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>remote</strong> (<em>str</em>) &#8211; the name of the remote file</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.disk.MissingDiskException" title="qapy.disk.MissingDiskException"><strong>qapy.disk.MissingDiskException</strong></a> &#8211; the disk is not on the server</li>
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><strong>ValueError</strong> &#8211; no such file
+(<tt class="xref py py-exc docutils literal"><span class="pre">KeyError</span></tt> with disk[&#8216;file&#8217;] syntax)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.disk.QDisk.commit">
+<tt class="descname">commit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/disk.html#QDisk.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QDisk.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replicate local changes on the current object instance to the REST API</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.disk.QDisk.uuid">
+<tt class="descname">uuid</tt><a class="reference internal" href="_modules/qapy/disk.html#QDisk.uuid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QDisk.uuid" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">string</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>The disk&#8217;s UUID.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.disk.QDisk.add_mode">
+<tt class="descname">add_mode</tt><a class="reference internal" href="_modules/qapy/disk.html#QDisk.add_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QDisk.add_mode" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference internal" href="#qapy.disk.QUploadMode" title="qapy.disk.QUploadMode"><tt class="xref py py-class docutils literal"><span class="pre">QUploadMode</span></tt></a></td>
+</tr>
+</tbody>
+</table>
+<p>Default mode for adding files.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.disk.QDisk.description">
+<tt class="descname">description</tt><a class="reference internal" href="_modules/qapy/disk.html#QDisk.description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QDisk.description" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">string</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>The disk&#8217;s description.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.disk.QDisk.locked">
+<tt class="descname">locked</tt><a class="reference internal" href="_modules/qapy/disk.html#QDisk.locked"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QDisk.locked" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">bool</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>The disk&#8217;s lock state. If True, prevents the disk to be removed
+by a subsequent <a class="reference internal" href="#qapy.connection.QApy.create_task" title="qapy.connection.QApy.create_task"><tt class="xref py py-meth docutils literal"><span class="pre">qapy.connection.QApy.create_task()</span></tt></a> with <em>force</em>
+set to True.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="qapy.disk.QFileInfo">
+<em class="property">class </em><tt class="descclassname">qapy.disk.</tt><tt class="descname">QFileInfo</tt><big>(</big><em>lastChange</em>, <em>name</em>, <em>size</em>, <em>fileFlags</em>, <em>sha1Sum</em><big>)</big><a class="reference internal" href="_modules/qapy/disk.html#QFileInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QFileInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Informations about a file.</p>
+<dl class="attribute">
+<dt id="qapy.disk.QFileInfo.lastchange">
+<tt class="descname">lastchange</tt><em class="property"> = None</em><a class="headerlink" href="#qapy.disk.QFileInfo.lastchange" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">datetime</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>UTC Last change time of the file on the <a class="reference internal" href="#qapy.disk.QDisk" title="qapy.disk.QDisk"><tt class="xref py py-class docutils literal"><span class="pre">QDisk</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.disk.QFileInfo.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#qapy.disk.QFileInfo.name" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">string</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>Path of the file on the <a class="reference internal" href="#qapy.disk.QDisk" title="qapy.disk.QDisk"><tt class="xref py py-class docutils literal"><span class="pre">QDisk</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.disk.QFileInfo.size">
+<tt class="descname">size</tt><em class="property"> = None</em><a class="headerlink" href="#qapy.disk.QFileInfo.size" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">int</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>Size of the file on the <a class="reference internal" href="#qapy.disk.QDisk" title="qapy.disk.QDisk"><tt class="xref py py-class docutils literal"><span class="pre">QDisk</span></tt></a> (in Bytes).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.disk.QFileInfo.directory">
+<tt class="descname">directory</tt><em class="property"> = None</em><a class="headerlink" href="#qapy.disk.QFileInfo.directory" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">bool</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>Is the file a directory.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.disk.QFileInfo.sha1sum">
+<tt class="descname">sha1sum</tt><em class="property"> = None</em><a class="headerlink" href="#qapy.disk.QFileInfo.sha1sum" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">string</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>SHA1 Sum of the file</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="qapy.disk.QUploadMode">
+<em class="property">class </em><tt class="descclassname">qapy.disk.</tt><tt class="descname">QUploadMode</tt><a class="reference internal" href="_modules/qapy/disk.html#QUploadMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.QUploadMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>How to add files on a <a class="reference internal" href="#qapy.disk.QDisk" title="qapy.disk.QDisk"><tt class="xref py py-class docutils literal"><span class="pre">QDisk</span></tt></a>.</p>
+<dl class="attribute">
+<dt id="qapy.disk.QUploadMode.blocking">
+<tt class="descname">blocking</tt><em class="property"> = 0</em><a class="headerlink" href="#qapy.disk.QUploadMode.blocking" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call to <a class="reference internal" href="#qapy.disk.QDisk.add_file" title="qapy.disk.QDisk.add_file"><tt class="xref py py-func docutils literal"><span class="pre">add_file()</span></tt></a> <a class="reference internal" href="#qapy.disk.QDisk.add_directory" title="qapy.disk.QDisk.add_directory"><tt class="xref py py-func docutils literal"><span class="pre">add_directory()</span></tt></a>
+or blocks until file is done uploading.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.disk.QUploadMode.background">
+<tt class="descname">background</tt><em class="property"> = 1</em><a class="headerlink" href="#qapy.disk.QUploadMode.background" title="Permalink to this definition">¶</a></dt>
+<dd><p>Launch a background thread for uploading.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.disk.QUploadMode.lazy">
+<tt class="descname">lazy</tt><em class="property"> = 2</em><a class="headerlink" href="#qapy.disk.QUploadMode.lazy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Actual uploading is made by the <a class="reference internal" href="#qapy.disk.QDisk.flush" title="qapy.disk.QDisk.flush"><tt class="xref py py-func docutils literal"><span class="pre">flush()</span></tt></a> method call.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="qapy.disk.MissingDiskException">
+<em class="property">exception </em><tt class="descclassname">qapy.disk.</tt><tt class="descname">MissingDiskException</tt><big>(</big><em>message</em>, <em>name</em><big>)</big><a class="reference internal" href="_modules/qapy/disk.html#MissingDiskException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.MissingDiskException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Non existant disk.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="qapy.disk.MaxDiskException">
+<em class="property">exception </em><tt class="descclassname">qapy.disk.</tt><tt class="descname">MaxDiskException</tt><a class="reference internal" href="_modules/qapy/disk.html#MaxDiskException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.disk.MaxDiskException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Max number of disks reached.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-qapy.task">
+<span id="qapy-task-module"></span><h2>qapy.task module<a class="headerlink" href="#module-qapy.task" title="Permalink to this headline">¶</a></h2>
+<p>Module to handle a task.</p>
+<dl class="class">
+<dt id="qapy.task.QTask">
+<em class="property">class </em><tt class="descclassname">qapy.task.</tt><tt class="descname">QTask</tt><big>(</big><em>connection</em>, <em>name</em>, <em>profile</em>, <em>frameNbr</em>, <em>force</em><big>)</big><a class="reference internal" href="_modules/qapy/task.html#QTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Represents a Qarnot job.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">A <a class="reference internal" href="#qapy.task.QTask" title="qapy.task.QTask"><tt class="xref py py-class docutils literal"><span class="pre">QTask</span></tt></a> must be created with
+<a class="reference internal" href="#qapy.connection.QApy.create_task" title="qapy.connection.QApy.create_task"><tt class="xref py py-meth docutils literal"><span class="pre">qapy.connection.QApy.create_task()</span></tt></a>
+or retrieved with <a class="reference internal" href="#qapy.connection.QApy.tasks" title="qapy.connection.QApy.tasks"><tt class="xref py py-meth docutils literal"><span class="pre">qapy.connection.QApy.tasks()</span></tt></a>.</p>
+</div>
+<dl class="method">
+<dt id="qapy.task.QTask.run">
+<tt class="descname">run</tt><big>(</big><em>output_dir</em>, <em>job_timeout=None</em><big>)</big><a class="reference internal" href="_modules/qapy/task.html#QTask.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submit a task, wait for the results and download them.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>output_dir</strong> (<em>str</em>) &#8211; path to a directory that will contain the results</li>
+<li><strong>job_timeout</strong> (<em>float</em>) &#8211; the task will <a class="reference internal" href="#qapy.task.QTask.abort" title="qapy.task.QTask.abort"><tt class="xref py py-meth docutils literal"><span class="pre">abort()</span></tt></a> if it has not
+already finished</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">string</span></tt></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Path to the directory containing the results (may be None).</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.disk.MissingDiskException" title="qapy.disk.MissingDiskException"><strong>qapy.disk.MissingDiskException</strong></a> &#8211; resource disk is not a valid disk</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Will ensure all added file are on the resource disk
+regardless of their uploading mode.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If this function is interrupted (script killed for example),
+but the task is submitted, the task will still be executed remotely
+(results will not be downloaded)</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Will override <em>output_dir</em> content.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.task.QTask.resume">
+<tt class="descname">resume</tt><big>(</big><em>output_dir</em><big>)</big><a class="reference internal" href="_modules/qapy/task.html#QTask.resume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.resume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resume waiting for this task if it is still in submitted mode.
+Equivalent to <a class="reference internal" href="#qapy.task.QTask.wait" title="qapy.task.QTask.wait"><tt class="xref py py-meth docutils literal"><span class="pre">wait()</span></tt></a> + <a class="reference internal" href="#qapy.task.QTask.results" title="qapy.task.QTask.results"><tt class="xref py py-meth docutils literal"><span class="pre">results()</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>output_dir</strong> (<em>str</em>) &#8211; path to a directory that will contain the results</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">string</span></tt></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Path to the directory containing the results (may be None).</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.task.MissingTaskException" title="qapy.task.MissingTaskException"><strong>qapy.task.MissingTaskException</strong></a> &#8211; task does not exist</li>
+<li><a class="reference internal" href="#qapy.disk.MissingDiskException" title="qapy.disk.MissingDiskException"><strong>qapy.disk.MissingDiskException</strong></a> &#8211; resource disk is not a valid disk</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Do nothing if the task has not been submitted.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Will override <em>output_dir</em> content.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.task.QTask.submit">
+<tt class="descname">submit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/task.html#QTask.submit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.submit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submit task to the cluster if it is not already submitted.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">string</span></tt></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Status of the task (see <a class="reference internal" href="#qapy.task.QTask.state" title="qapy.task.QTask.state"><tt class="xref py py-attr docutils literal"><span class="pre">state</span></tt></a>)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.disk.MissingDiskException" title="qapy.disk.MissingDiskException"><strong>qapy.disk.MissingDiskException</strong></a> &#8211; resource disk is not a valid disk</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Will ensure all added file are on the resource disk
+regardless of their uploading mode.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">To get the results, call <a class="reference internal" href="#qapy.task.QTask.results" title="qapy.task.QTask.results"><tt class="xref py py-meth docutils literal"><span class="pre">results()</span></tt></a> once the job is done.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.task.QTask.abort">
+<tt class="descname">abort</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/task.html#QTask.abort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.abort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abort this task if running. Update state to Cancelled.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.task.MissingTaskException" title="qapy.task.MissingTaskException"><strong>qapy.task.MissingTaskException</strong></a> &#8211; task does not represent
+a valid one</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">If this task is already finished, a call to <a class="reference internal" href="#qapy.task.QTask.abort" title="qapy.task.QTask.abort"><tt class="xref py py-meth docutils literal"><span class="pre">abort()</span></tt></a>
+will delete it.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.task.QTask.update_resources">
+<tt class="descname">update_resources</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/task.html#QTask.update_resources"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.update_resources" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="qapy.task.QTask.delete">
+<tt class="descname">delete</tt><big>(</big><em>purge_resources=None</em>, <em>purge_results=None</em><big>)</big><a class="reference internal" href="_modules/qapy/task.html#QTask.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete this task on the server. Does nothing if it is already deleted.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>purge_resources</strong> (<em>bool</em>) &#8211; if None disk will be deleted unless locked,
+otherwire parameter value is used to determine if the disk is also deleted.
+Defaults to None.</li>
+<li><strong>purge_results</strong> (<em>bool</em>) &#8211; if None disk will be deleted unless locked,
+otherwise parameter value is used to determine if the disk is also deleted.
+Defaults to None.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.task.MissingTaskException" title="qapy.task.MissingTaskException"><strong>qapy.task.MissingTaskException</strong></a> &#8211; task does not represent a
+valid one</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><em>force</em> parameter in <a class="reference internal" href="#qapy.connection.QApy.create_task" title="qapy.connection.QApy.create_task"><tt class="xref py py-meth docutils literal"><span class="pre">qapy.connection.QApy.create_task()</span></tt></a>
+may be set to True in order to delete old tasks automatically.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.task.QTask.update">
+<tt class="descname">update</tt><big>(</big><em>flushcache=False</em><big>)</big><a class="reference internal" href="_modules/qapy/task.html#QTask.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the task object from the REST Api.
+The flushcache parameters can be used to force the update, otherwise a cached version of the object
+will be served when accessing properties of the object.
+Some methods will flush the cache, like <a class="reference internal" href="#qapy.task.QTask.submit" title="qapy.task.QTask.submit"><tt class="xref py py-meth docutils literal"><span class="pre">submit()</span></tt></a>, <a class="reference internal" href="#qapy.task.QTask.abort" title="qapy.task.QTask.abort"><tt class="xref py py-meth docutils literal"><span class="pre">abort()</span></tt></a>, <a class="reference internal" href="#qapy.task.QTask.wait" title="qapy.task.QTask.wait"><tt class="xref py py-meth docutils literal"><span class="pre">wait()</span></tt></a> and <a class="reference internal" href="#qapy.task.QTask.instant" title="qapy.task.QTask.instant"><tt class="xref py py-meth docutils literal"><span class="pre">instant()</span></tt></a>.
+Cache behavior is configurable with <a class="reference internal" href="#qapy.task.QTask.auto_update" title="qapy.task.QTask.auto_update"><tt class="xref py py-attr docutils literal"><span class="pre">auto_update</span></tt></a> and <a class="reference internal" href="#qapy.task.QTask.update_cache_time" title="qapy.task.QTask.update_cache_time"><tt class="xref py py-attr docutils literal"><span class="pre">update_cache_time</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">string</span></tt></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">State of the task (see <a class="reference internal" href="#qapy.task.QTask.state" title="qapy.task.QTask.state"><tt class="xref py py-attr docutils literal"><span class="pre">state</span></tt></a>)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.task.MissingTaskException" title="qapy.task.MissingTaskException"><strong>qapy.task.MissingTaskException</strong></a> &#8211; task does not represent a
+valid one</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.task.QTask.commit">
+<tt class="descname">commit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/task.html#QTask.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replicate local changes on the current object instance to the REST API</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.task.QTask.wait">
+<tt class="descname">wait</tt><big>(</big><em>timeout=None</em><big>)</big><a class="reference internal" href="_modules/qapy/task.html#QTask.wait"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.wait" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait for this task until it is completed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>timeout</strong> (<em>float</em>) &#8211; maximum time (in seconds) to wait before returning
+(None =&gt; no timeout)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">string</span></tt></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Is the task finished</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.task.MissingTaskException" title="qapy.task.MissingTaskException"><strong>qapy.task.MissingTaskException</strong></a> &#8211; task does not represent a valid
+one</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.task.QTask.snapshot">
+<tt class="descname">snapshot</tt><big>(</big><em>interval</em><big>)</big><a class="reference internal" href="_modules/qapy/task.html#QTask.snapshot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.snapshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start snapshooting results.
+If called, this task&#8217;s results will be periodically
+updated, instead of only being available at the end.</p>
+<p>Snapshots will be taken every <em>interval</em> second from the time
+the task is submitted.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>interval</strong> (<em>int</em>) &#8211; the interval in seconds at which to take snapshots</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.task.MissingTaskException" title="qapy.task.MissingTaskException"><strong>qapy.task.MissingTaskException</strong></a> &#8211; task does not represent a
+valid one</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">To get the temporary results, call <a class="reference internal" href="#qapy.task.QTask.results" title="qapy.task.QTask.results"><tt class="xref py py-meth docutils literal"><span class="pre">results()</span></tt></a>.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.task.QTask.instant">
+<tt class="descname">instant</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/task.html#QTask.instant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.instant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a snapshot of the current task.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.task.MissingTaskException" title="qapy.task.MissingTaskException"><strong>qapy.task.MissingTaskException</strong></a> &#8211; task does not represent a
+valid one</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">To get the temporary results, call <a class="reference internal" href="#qapy.task.QTask.results" title="qapy.task.QTask.results"><tt class="xref py py-meth docutils literal"><span class="pre">results()</span></tt></a>.</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.task.QTask.state">
+<tt class="descname">state</tt><a class="reference internal" href="_modules/qapy/task.html#QTask.state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.state" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">string</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>State of the task.</p>
+<dl class="docutils">
+<dt>Value is in</dt>
+<dd><ul class="first last simple">
+<li>UnSubmitted</li>
+<li>Submitted</li>
+<li>PartiallyDispatched</li>
+<li>FullyDispatched</li>
+<li>PartiallyExecuting</li>
+<li>FullyExecuting</li>
+<li>DownloadingResults</li>
+<li>Cancelled</li>
+<li>Success</li>
+<li>Failure</li>
+</ul>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">this is the state of the task when the object was retrieved,
+call <a class="reference internal" href="#qapy.task.QTask.results" title="qapy.task.QTask.results"><tt class="xref py py-meth docutils literal"><span class="pre">results()</span></tt></a> for up to date value.</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.task.QTask.resources">
+<tt class="descname">resources</tt><a class="reference internal" href="_modules/qapy/task.html#QTask.resources"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.resources" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference internal" href="#qapy.disk.QDisk" title="qapy.disk.QDisk"><tt class="xref py py-class docutils literal"><span class="pre">QDisk</span></tt></a></td>
+</tr>
+</tbody>
+</table>
+<p>Represents resource files.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.task.QTask.results">
+<tt class="descname">results</tt><a class="reference internal" href="_modules/qapy/task.html#QTask.results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.results" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference internal" href="#qapy.disk.QDisk" title="qapy.disk.QDisk"><tt class="xref py py-class docutils literal"><span class="pre">QDisk</span></tt></a></td>
+</tr>
+</tbody>
+</table>
+<p>Represents results files.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.task.QTask.download_results">
+<tt class="descname">download_results</tt><big>(</big><em>output_dir</em><big>)</big><a class="reference internal" href="_modules/qapy/task.html#QTask.download_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.download_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download results in given <em>output_dir</em>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">str</span></tt></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The path containing task results.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Will override <em>output_dir</em> content.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.task.QTask.stdout">
+<tt class="descname">stdout</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/task.html#QTask.stdout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.stdout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the standard output of the task
+since the submission of the task.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">str</span></tt></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The standard ouput.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.task.MissingTaskException" title="qapy.task.MissingTaskException"><strong>qapy.task.MissingTaskException</strong></a> &#8211; task does not represent a
+valid one</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The buffer is circular, if stdout is too big, prefer calling
+<a class="reference internal" href="#qapy.task.QTask.fresh_stdout" title="qapy.task.QTask.fresh_stdout"><tt class="xref py py-meth docutils literal"><span class="pre">fresh_stdout()</span></tt></a> regularly.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.task.QTask.fresh_stdout">
+<tt class="descname">fresh_stdout</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/task.html#QTask.fresh_stdout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.fresh_stdout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get what has been written on the standard output since last time
+this function was called or since the task has been submitted.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">str</span></tt></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The new output since last call.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.task.MissingTaskException" title="qapy.task.MissingTaskException"><strong>qapy.task.MissingTaskException</strong></a> &#8211; task does not represent a
+valid one</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.task.QTask.stderr">
+<tt class="descname">stderr</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/task.html#QTask.stderr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.stderr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the standard error of the task
+since the submission of the task.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">str</span></tt></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The standard error.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.task.MissingTaskException" title="qapy.task.MissingTaskException"><strong>qapy.task.MissingTaskException</strong></a> &#8211; task does not represent a
+valid one</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The buffer is circular, if stderr is too big, prefer calling
+<a class="reference internal" href="#qapy.task.QTask.fresh_stderr" title="qapy.task.QTask.fresh_stderr"><tt class="xref py py-meth docutils literal"><span class="pre">fresh_stderr()</span></tt></a> regularly.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="qapy.task.QTask.fresh_stderr">
+<tt class="descname">fresh_stderr</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/task.html#QTask.fresh_stderr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.fresh_stderr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get what has been written on the standard error since last time
+this function was called or since the task has been submitted.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">str</span></tt></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The new error messages since last call.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+<li><a class="reference internal" href="#qapy.task.MissingTaskException" title="qapy.task.MissingTaskException"><strong>qapy.task.MissingTaskException</strong></a> &#8211; task does not represent a
+valid one</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.task.QTask.uuid">
+<tt class="descname">uuid</tt><a class="reference internal" href="_modules/qapy/task.html#QTask.uuid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.uuid" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">string</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>The task&#8217;s uuid.</p>
+<p>Automatically set when a task is submitted.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.task.QTask.name">
+<tt class="descname">name</tt><a class="reference internal" href="_modules/qapy/task.html#QTask.name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.name" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">string</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>The task&#8217;s name.</p>
+<p>Can be set until <a class="reference internal" href="#qapy.task.QTask.run" title="qapy.task.QTask.run"><tt class="xref py py-meth docutils literal"><span class="pre">run()</span></tt></a> is called</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.task.QTask.profile">
+<tt class="descname">profile</tt><a class="reference internal" href="_modules/qapy/task.html#QTask.profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.profile" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">string</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>The profile to run the task with.</p>
+<p>Can be set until <a class="reference internal" href="#qapy.task.QTask.run" title="qapy.task.QTask.run"><tt class="xref py py-meth docutils literal"><span class="pre">run()</span></tt></a> is called.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.task.QTask.framecount">
+<tt class="descname">framecount</tt><a class="reference internal" href="_modules/qapy/task.html#QTask.framecount"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.framecount" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">int</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>Number of frames needed for the task.</p>
+<p>Can be set until <a class="reference internal" href="#qapy.task.QTask.run" title="qapy.task.QTask.run"><tt class="xref py py-meth docutils literal"><span class="pre">run()</span></tt></a> is called.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.task.QTask.advanced_range">
+<tt class="descname">advanced_range</tt><a class="reference internal" href="_modules/qapy/task.html#QTask.advanced_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.advanced_range" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">string</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>Advanced frame range selection.</p>
+<p>Allows to select which frames will be computed.
+Should be None or match the following extended regular expression
+<strong>&#8220;(\[[0-9]+-[0-9]+\])( \[[0-9]+-[0-9]+\])*&#8221;</strong></p>
+<p>This parameter will override <a class="reference internal" href="#qapy.task.QTask.framecount" title="qapy.task.QTask.framecount"><tt class="xref py py-attr docutils literal"><span class="pre">framecount</span></tt></a>.
+<em>[min-max]</em> will generate (max - min) frames from min to max (excluded).</p>
+<p>Can be set until <a class="reference internal" href="#qapy.task.QTask.run" title="qapy.task.QTask.run"><tt class="xref py py-meth docutils literal"><span class="pre">run()</span></tt></a> is called.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.task.QTask.snapshot_whitelist">
+<tt class="descname">snapshot_whitelist</tt><a class="reference internal" href="_modules/qapy/task.html#QTask.snapshot_whitelist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.snapshot_whitelist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Snapshot white list</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.task.QTask.snapshot_blacklist">
+<tt class="descname">snapshot_blacklist</tt><a class="reference internal" href="_modules/qapy/task.html#QTask.snapshot_blacklist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.snapshot_blacklist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Snapshot black list</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.task.QTask.results_whitelist">
+<tt class="descname">results_whitelist</tt><a class="reference internal" href="_modules/qapy/task.html#QTask.results_whitelist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.results_whitelist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Results whitelist</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.task.QTask.results_blacklist">
+<tt class="descname">results_blacklist</tt><a class="reference internal" href="_modules/qapy/task.html#QTask.results_blacklist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.results_blacklist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Results blacklist</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.task.QTask.execution_cluster">
+<tt class="descname">execution_cluster</tt><a class="reference internal" href="_modules/qapy/task.html#QTask.execution_cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.execution_cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Various statistics about running task</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.task.QTask.error_reason">
+<tt class="descname">error_reason</tt><a class="reference internal" href="_modules/qapy/task.html#QTask.error_reason"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.error_reason" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error reason if any, empty string if none</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.task.QTask.auto_update">
+<tt class="descname">auto_update</tt><a class="reference internal" href="_modules/qapy/task.html#QTask.auto_update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.auto_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Auto update state, default to True
+When auto update is disabled properties will always return cached value 
+for the object and a call to <a class="reference internal" href="#qapy.task.QTask.update" title="qapy.task.QTask.update"><tt class="xref py py-meth docutils literal"><span class="pre">update()</span></tt></a> will be required to get latest values from the REST Api.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.task.QTask.update_cache_time">
+<tt class="descname">update_cache_time</tt><a class="reference internal" href="_modules/qapy/task.html#QTask.update_cache_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.QTask.update_cache_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cache expiration time, default to 5s</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="qapy.task.MissingTaskException">
+<em class="property">exception </em><tt class="descclassname">qapy.task.</tt><tt class="descname">MissingTaskException</tt><big>(</big><em>message</em>, <em>name</em><big>)</big><a class="reference internal" href="_modules/qapy/task.html#MissingTaskException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.MissingTaskException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Non existant task.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="qapy.task.MaxTaskException">
+<em class="property">exception </em><tt class="descclassname">qapy.task.</tt><tt class="descname">MaxTaskException</tt><a class="reference internal" href="_modules/qapy/task.html#MaxTaskException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.task.MaxTaskException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Max number of tasks reached.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="qapy-notification-module">
+<h2>qapy.notification module<a class="headerlink" href="#qapy-notification-module" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-qapy.notification"></span><p>Notification</p>
+<dl class="class">
+<dt id="qapy.notification.QNotification">
+<em class="property">class </em><tt class="descclassname">qapy.notification.</tt><tt class="descname">QNotification</tt><big>(</big><em>jsonnotification</em>, <em>connection</em><big>)</big><a class="reference internal" href="_modules/qapy/notification.html#QNotification"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.QNotification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A Qarnot Notification</p>
+<dl class="method">
+<dt id="qapy.notification.QNotification.delete">
+<tt class="descname">delete</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/notification.html#QNotification.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.QNotification.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the notification represented by this <a class="reference internal" href="#qapy.notification.QNotification" title="qapy.notification.QNotification"><tt class="xref py py-class docutils literal"><span class="pre">QNotification</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#qapy.QApyException" title="qapy.QApyException"><strong>qapy.QApyException</strong></a> &#8211; API general error, see message for details</li>
+<li><a class="reference internal" href="#qapy.connection.UnauthorizedException" title="qapy.connection.UnauthorizedException"><strong>qapy.connection.UnauthorizedException</strong></a> &#8211; invalid credentials</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.notification.QNotification.id">
+<tt class="descname">id</tt><a class="reference internal" href="_modules/qapy/notification.html#QNotification.id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.QNotification.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Id Getter</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.notification.QNotification.filter">
+<tt class="descname">filter</tt><a class="reference internal" href="_modules/qapy/notification.html#QNotification.filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.QNotification.filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter getter</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="qapy.notification.Filter">
+<em class="property">class </em><tt class="descclassname">qapy.notification.</tt><tt class="descname">Filter</tt><big>(</big><em>template</em>, <em>destination</em><big>)</big><a class="reference internal" href="_modules/qapy/notification.html#Filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.Filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Filter class</p>
+<dl class="method">
+<dt id="qapy.notification.Filter.json">
+<tt class="descname">json</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/notification.html#Filter.json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.Filter.json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Json representation of the class</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.notification.Filter.destination">
+<tt class="descname">destination</tt><a class="reference internal" href="_modules/qapy/notification.html#Filter.destination"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.Filter.destination" title="Permalink to this definition">¶</a></dt>
+<dd><p>Destination getter</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.notification.Filter.template">
+<tt class="descname">template</tt><a class="reference internal" href="_modules/qapy/notification.html#Filter.template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.Filter.template" title="Permalink to this definition">¶</a></dt>
+<dd><p>Template getter</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="qapy.notification.TaskNotification">
+<em class="property">class </em><tt class="descclassname">qapy.notification.</tt><tt class="descname">TaskNotification</tt><big>(</big><em>template</em>, <em>destination</em>, <em>filterkey</em>, <em>filtervalue</em><big>)</big><a class="reference internal" href="_modules/qapy/notification.html#TaskNotification"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.TaskNotification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#qapy.notification.Filter" title="qapy.notification.Filter"><tt class="xref py py-class docutils literal"><span class="pre">qapy.notification.Filter</span></tt></a></p>
+<p>TaskNotification class</p>
+<dl class="method">
+<dt id="qapy.notification.TaskNotification.json">
+<tt class="descname">json</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/notification.html#TaskNotification.json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.TaskNotification.json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.notification.TaskNotification.filterkey">
+<tt class="descname">filterkey</tt><a class="reference internal" href="_modules/qapy/notification.html#TaskNotification.filterkey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.TaskNotification.filterkey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filterkey getter</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.notification.TaskNotification.filtervalue">
+<tt class="descname">filtervalue</tt><a class="reference internal" href="_modules/qapy/notification.html#TaskNotification.filtervalue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.TaskNotification.filtervalue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filtervalue getter</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="qapy.notification.TaskStateChanged">
+<em class="property">class </em><tt class="descclassname">qapy.notification.</tt><tt class="descname">TaskStateChanged</tt><big>(</big><em>template</em>, <em>destination</em>, <em>filterkey</em>, <em>filtervalue</em>, <em>to</em>, <em>_from</em>, <em>state</em><big>)</big><a class="reference internal" href="_modules/qapy/notification.html#TaskStateChanged"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.TaskStateChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#qapy.notification.TaskNotification" title="qapy.notification.TaskNotification"><tt class="xref py py-class docutils literal"><span class="pre">qapy.notification.TaskNotification</span></tt></a></p>
+<p>TaskStateChanged class</p>
+<dl class="method">
+<dt id="qapy.notification.TaskStateChanged.json">
+<tt class="descname">json</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/notification.html#TaskStateChanged.json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.TaskStateChanged.json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.notification.TaskStateChanged.toregex">
+<tt class="descname">toregex</tt><a class="reference internal" href="_modules/qapy/notification.html#TaskStateChanged.toregex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.TaskStateChanged.toregex" title="Permalink to this definition">¶</a></dt>
+<dd><p>To getter</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.notification.TaskStateChanged.fromregex">
+<tt class="descname">fromregex</tt><a class="reference internal" href="_modules/qapy/notification.html#TaskStateChanged.fromregex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.TaskStateChanged.fromregex" title="Permalink to this definition">¶</a></dt>
+<dd><p>To getter</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.notification.TaskStateChanged.stateregex">
+<tt class="descname">stateregex</tt><a class="reference internal" href="_modules/qapy/notification.html#TaskStateChanged.stateregex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.TaskStateChanged.stateregex" title="Permalink to this definition">¶</a></dt>
+<dd><p>To getter</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qapy.notification.TaskStateChanged.state_regex">
+<tt class="descname">state_regex</tt><a class="reference internal" href="_modules/qapy/notification.html#TaskStateChanged.state_regex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.TaskStateChanged.state_regex" title="Permalink to this definition">¶</a></dt>
+<dd><p>To getter</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="qapy.notification.TaskCreated">
+<em class="property">class </em><tt class="descclassname">qapy.notification.</tt><tt class="descname">TaskCreated</tt><big>(</big><em>template</em>, <em>destination</em>, <em>filterkey</em>, <em>filtervalue</em><big>)</big><a class="reference internal" href="_modules/qapy/notification.html#TaskCreated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.TaskCreated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#qapy.notification.TaskNotification" title="qapy.notification.TaskNotification"><tt class="xref py py-class docutils literal"><span class="pre">qapy.notification.TaskNotification</span></tt></a></p>
+<p>TaskCreated class</p>
+<dl class="method">
+<dt id="qapy.notification.TaskCreated.json">
+<tt class="descname">json</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/notification.html#TaskCreated.json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.TaskCreated.json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="qapy.notification.TaskEnded">
+<em class="property">class </em><tt class="descclassname">qapy.notification.</tt><tt class="descname">TaskEnded</tt><big>(</big><em>template</em>, <em>destination</em>, <em>filterkey</em>, <em>filtervalue</em><big>)</big><a class="reference internal" href="_modules/qapy/notification.html#TaskEnded"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.TaskEnded" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#qapy.notification.TaskNotification" title="qapy.notification.TaskNotification"><tt class="xref py py-class docutils literal"><span class="pre">qapy.notification.TaskNotification</span></tt></a></p>
+<p>TaskEnded class</p>
+<dl class="method">
+<dt id="qapy.notification.TaskEnded.json">
+<tt class="descname">json</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qapy/notification.html#TaskEnded.json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qapy.notification.TaskEnded.json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to qapy’s documentation!"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Qarnot Computing.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

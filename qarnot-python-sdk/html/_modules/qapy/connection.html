@@ -1,0 +1,637 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qapy.connection &mdash; qapy  documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="qapy  documentation" href="../../index.html"/>
+        <link rel="up" title="qapy" href="../qapy.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../../index.html" class="fa fa-home"> qapy</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../qapy.html">qapy package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../qapy.html#module-qapy">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../qapy.html#module-qapy.connection">qapy.connection module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../qapy.html#module-qapy.disk">qapy.disk module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../qapy.html#module-qapy.task">qapy.task module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../qapy.html#qapy-notification-module">qapy.notification module</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">qapy</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+          <li><a href="../qapy.html">qapy</a> &raquo;</li>
+      
+    <li>qapy.connection</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <h1>Source code for qapy.connection</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;Module describing a connection.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">qapy</span> <span class="kn">import</span> <span class="n">get_url</span><span class="p">,</span> <span class="n">raise_on_error</span><span class="p">,</span> <span class="n">QApyException</span>
+<span class="kn">from</span> <span class="nn">qapy.disk</span> <span class="kn">import</span> <span class="n">QDisk</span><span class="p">,</span> <span class="n">MissingDiskException</span>
+<span class="kn">from</span> <span class="nn">qapy.task</span> <span class="kn">import</span> <span class="n">QTask</span><span class="p">,</span> <span class="n">MissingTaskException</span>
+<span class="kn">from</span> <span class="nn">qapy.notification</span> <span class="kn">import</span> <span class="n">QNotification</span>
+<span class="kn">import</span> <span class="nn">qapy.notification</span> <span class="kn">as</span> <span class="nn">notification</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">json</span> <span class="kn">import</span> <span class="n">dumps</span> <span class="k">as</span> <span class="n">json_dumps</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span> <span class="c"># module renamed in py3</span>
+    <span class="kn">import</span> <span class="nn">configparser</span> <span class="kn">as</span> <span class="nn">config</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">ConfigParser</span> <span class="kn">as</span> <span class="nn">config</span>
+
+
+<span class="c">#########</span>
+<span class="c"># class #</span>
+<span class="c">#########</span>
+
+<div class="viewcode-block" id="QApy"><a class="viewcode-back" href="../../qapy.html#qapy.connection.QApy">[docs]</a><span class="k">class</span> <span class="nc">QApy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Represents the couple cluster/user to which submit tasks.</span>
+
+<span class="sd">    .. automethod:: __init__</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="QApy.__init__"><a class="viewcode-back" href="../../qapy.html#qapy.connection.QApy.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a connection to a cluster with given config file or</span>
+<span class="sd">        dictionary.</span>
+
+<span class="sd">        :param conf: path to a qarnot configuration file or dictionary</span>
+<span class="sd">          containing following keys:</span>
+<span class="sd">        * cluster_url</span>
+<span class="sd">        * cluster_unsafe   (optional)</span>
+<span class="sd">        * cluster_timeout  (optional)</span>
+<span class="sd">        * client_auth</span>
+<span class="sd">        .. note:: qarnot.conf file format:</span>
+<span class="sd">        ::</span>
+
+<span class="sd">           [cluster]</span>
+<span class="sd">           # url of the REST API</span>
+<span class="sd">           url=https://localhost</span>
+<span class="sd">           # No SSL verification ?</span>
+<span class="sd">           unsafe=False</span>
+<span class="sd">           # timeout put on every GET/POST</span>
+<span class="sd">           timeout=30</span>
+<span class="sd">           [client]</span>
+<span class="sd">           # auth string of the client</span>
+<span class="sd">           auth=login</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">session</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cluster</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s">&#39;cluster_url&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&quot;Authorization&quot;</span><span class="p">:</span> <span class="n">conf</span><span class="p">[</span><span class="s">&#39;client_auth&#39;</span><span class="p">]})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">auth</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s">&#39;client_auth&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;cluster_timeout&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;cluster_unsafe&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">verify</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cfg</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span> <span class="k">as</span> <span class="n">cfgfile</span><span class="p">:</span>
+                <span class="n">cfg</span><span class="o">.</span><span class="n">readfp</span><span class="p">(</span><span class="n">cfgfile</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">cluster</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;cluster&#39;</span><span class="p">,</span> <span class="s">&#39;url&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&quot;Authorization&quot;</span><span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;client&#39;</span><span class="p">,</span>
+                                                                    <span class="s">&#39;auth&#39;</span><span class="p">)})</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">auth</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;client&#39;</span><span class="p">,</span> <span class="s">&#39;auth&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s">&#39;cluster&#39;</span><span class="p">,</span> <span class="s">&#39;timeout&#39;</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s">&#39;cluster&#39;</span><span class="p">,</span> <span class="s">&#39;timeout&#39;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s">&#39;cluster&#39;</span><span class="p">,</span> <span class="s">&#39;unsafe&#39;</span><span class="p">)</span> \
+                   <span class="ow">and</span> <span class="n">cfg</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s">&#39;cluster&#39;</span><span class="p">,</span> <span class="s">&#39;unsafe&#39;</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">verify</span> <span class="o">=</span> <span class="bp">False</span>
+</div>
+    <span class="k">def</span> <span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform a GET request on the cluster.</span>
+
+<span class="sd">        :param str url:</span>
+<span class="sd">          relative url of the file (according to the cluster url)</span>
+
+<span class="sd">        :rtype: :class:`requests.Response`</span>
+<span class="sd">        :returns: The response to the given request.</span>
+
+<span class="sd">        :raises UnauthorizedException: invalid credentials</span>
+
+<span class="sd">        .. note:: Additional keyword arguments are passed to the underlying</span>
+<span class="sd">           :func:`requests.Session.get`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cluster</span> <span class="o">+</span> <span class="n">url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span>
+                             <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ret</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">401</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnauthorizedException</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span> <span class="nf">_patch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;perform a PATCH request on the cluster</span>
+
+<span class="sd">        :param url: :class:`string`,</span>
+<span class="sd">          relative url of the file (according to the cluster url)</span>
+<span class="sd">        :param json: the data to json serialize and post</span>
+
+<span class="sd">        :rtype: :class:`requests.Response`</span>
+<span class="sd">        :returns: The response to the given request.</span>
+
+<span class="sd">        :raises UnauthorizedException: invalid credentials</span>
+
+<span class="sd">        .. note:: Additional keyword arguments are passed to the underlying</span>
+<span class="sd">           :attr:`requests.Session.post()`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">json</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="s">&#39;headers&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;headers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;headers&#39;</span><span class="p">][</span><span class="s">&#39;Content-Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;application/json&#39;</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json_dumps</span><span class="p">(</span><span class="n">json</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cluster</span> <span class="o">+</span> <span class="n">url</span><span class="p">,</span>
+                              <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ret</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">401</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnauthorizedException</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span> <span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;perform a POST request on the cluster</span>
+
+<span class="sd">        :param url: :class:`string`,</span>
+<span class="sd">          relative url of the file (according to the cluster url)</span>
+<span class="sd">        :param json: the data to json serialize and post</span>
+
+<span class="sd">        :rtype: :class:`requests.Response`</span>
+<span class="sd">        :returns: The response to the given request.</span>
+
+<span class="sd">        :raises UnauthorizedException: invalid credentials</span>
+
+<span class="sd">        .. note:: Additional keyword arguments are passed to the underlying</span>
+<span class="sd">           :attr:`requests.Session.post()`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">json</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="s">&#39;headers&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;headers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;headers&#39;</span><span class="p">][</span><span class="s">&#39;Content-Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;application/json&#39;</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json_dumps</span><span class="p">(</span><span class="n">json</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cluster</span> <span class="o">+</span> <span class="n">url</span><span class="p">,</span>
+                              <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ret</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">401</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnauthorizedException</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+
+    <span class="k">def</span> <span class="nf">_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform a DELETE request on the cluster.</span>
+
+<span class="sd">        :param url: :class:`string`,</span>
+<span class="sd">          relative url of the file (according to the cluster url)</span>
+
+<span class="sd">        :rtype: :class:`requests.Response`</span>
+<span class="sd">        :returns: The response to the given request.</span>
+
+<span class="sd">        :raises UnauthorizedException: invalid credentials</span>
+
+<span class="sd">        .. note:: Additional keyword arguments are passed to the underlying</span>
+<span class="sd">          :attr:`requests.Session.delete()`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cluster</span> <span class="o">+</span> <span class="n">url</span><span class="p">,</span>
+                                <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ret</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">401</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnauthorizedException</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span> <span class="nf">_put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Performs a PUT on the cluster.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">json</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="s">&#39;headers&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;headers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;headers&#39;</span><span class="p">][</span><span class="s">&#39;Content-Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;application/json&#39;</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json_dumps</span><span class="p">(</span><span class="n">json</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cluster</span> <span class="o">+</span> <span class="n">url</span><span class="p">,</span>
+                             <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ret</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">401</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnauthorizedException</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+<div class="viewcode-block" id="QApy.user_info"><a class="viewcode-back" href="../../qapy.html#qapy.connection.QApy.user_info">[docs]</a>    <span class="k">def</span> <span class="nf">user_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get informations of the current user on the cluster.</span>
+
+<span class="sd">        :rtype: :class:`QUserInfo`</span>
+<span class="sd">        :returns: Requested informations.</span>
+
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">get_url</span><span class="p">(</span><span class="s">&#39;user&#39;</span><span class="p">))</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">QUserInfo</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="QApy.disks"><a class="viewcode-back" href="../../qapy.html#qapy.connection.QApy.disks">[docs]</a>    <span class="k">def</span> <span class="nf">disks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the list of disks on this cluster for this user.</span>
+
+<span class="sd">        :rtype: List of :class:`~qapy.disk.QDisk`.</span>
+<span class="sd">        :returns: Disks on the cluster owned by the user.</span>
+
+
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for detailse</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">get_url</span><span class="p">(</span><span class="s">&#39;disk folder&#39;</span><span class="p">))</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="n">disks</span> <span class="o">=</span> <span class="p">[</span><span class="n">QDisk</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="n">disks</span>
+</div>
+<div class="viewcode-block" id="QApy.profiles"><a class="viewcode-back" href="../../qapy.html#qapy.connection.QApy.profiles">[docs]</a>    <span class="k">def</span> <span class="nf">profiles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the list of available profiles for submitting tasks.</span>
+
+<span class="sd">        :rtype: List of :class:`str`.</span>
+<span class="sd">        :returns: List of the names of profiles.</span>
+
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">get_url</span><span class="p">(</span><span class="s">&#39;list profiles&#39;</span><span class="p">))</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">QProfile</span><span class="p">(</span><span class="n">prof</span><span class="p">)</span> <span class="k">for</span> <span class="n">prof</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()]</span>
+</div>
+<div class="viewcode-block" id="QApy.profile_info"><a class="viewcode-back" href="../../qapy.html#qapy.connection.QApy.profile_info">[docs]</a>    <span class="k">def</span> <span class="nf">profile_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get informations about a profile.</span>
+
+<span class="sd">        :param str profile: name of the profile</span>
+
+<span class="sd">        :rtype: :class:`QProfile`</span>
+<span class="sd">        :returns: The :class:`QProfile` corresponding to the requested profile.</span>
+
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises ValueError: no such profile</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">get_url</span><span class="p">(</span><span class="s">&#39;get profile&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">profile</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">QApyException</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s"> : </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span> <span class="n">profile</span><span class="p">))</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">QProfile</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="QApy.tasks"><a class="viewcode-back" href="../../qapy.html#qapy.connection.QApy.tasks">[docs]</a>    <span class="k">def</span> <span class="nf">tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the list of tasks stored on this cluster for this user.</span>
+
+<span class="sd">        :rtype: List of :class:`~qapy.task.QTask`.</span>
+<span class="sd">        :returns: Tasks stored on the cluster owned by the user.</span>
+
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">get_url</span><span class="p">(</span><span class="s">&#39;tasks&#39;</span><span class="p">))</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">():</span>
+            <span class="n">task2</span> <span class="o">=</span> <span class="n">QTask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;stub&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+            <span class="n">task2</span><span class="o">.</span><span class="n">_update</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
+</div>
+<div class="viewcode-block" id="QApy.retrieve_task"><a class="viewcode-back" href="../../qapy.html#qapy.connection.QApy.retrieve_task">[docs]</a>    <span class="k">def</span> <span class="nf">retrieve_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve a :class:`qapy.task.QTask` from its guid</span>
+
+<span class="sd">        :param str guid: Desired task guid</span>
+<span class="sd">        :rtype: :class:`~qapi.task.QTask`</span>
+<span class="sd">        :returns: Existing task defined by the given guid</span>
+<span class="sd">        :raises qapy.task.MissingTaskException: task does not exist</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">get_url</span><span class="p">(</span><span class="s">&#39;task update&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">guid</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingTaskException</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span> <span class="n">guid</span><span class="p">)</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="n">temptask</span> <span class="o">=</span> <span class="n">QTask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;stub&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="n">temptask</span><span class="o">.</span><span class="n">_update</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">temptask</span>
+</div>
+<div class="viewcode-block" id="QApy.retrieve_disk"><a class="viewcode-back" href="../../qapy.html#qapy.connection.QApy.retrieve_disk">[docs]</a>    <span class="k">def</span> <span class="nf">retrieve_disk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve a :class:`~qapy.disk.QDisk` from its guid</span>
+
+<span class="sd">        :param str guid: Desired disk guid</span>
+<span class="sd">        :rtype: :class:`~qapi.disk.QDisk`</span>
+<span class="sd">        :returns: Existing disk defined by the given guid</span>
+<span class="sd">        :raises ValueError: no such disk</span>
+<span class="sd">        :raises qapy.disk.MissingDiskException: disk does not exist</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">get_url</span><span class="p">(</span><span class="s">&#39;disk info&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">guid</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingDiskException</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span> <span class="n">guid</span><span class="p">)</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">QDisk</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">(),</span> <span class="bp">self</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="QApy.create_disk"><a class="viewcode-back" href="../../qapy.html#qapy.connection.QApy.create_disk">[docs]</a>    <span class="k">def</span> <span class="nf">create_disk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new :class:`~qapy.disk.QDisk`.</span>
+
+<span class="sd">        :param str description: a short description of the disk</span>
+<span class="sd">        :param bool force: delete an old unlocked disk</span>
+<span class="sd">          if maximum number of disks is reached</span>
+<span class="sd">        :param bool lock: prevents the disk to be removed</span>
+<span class="sd">          by a subsequent :meth:`create_disk` with force set to True</span>
+
+<span class="sd">        :rtype: :class:`qapy.disk.QDisk`</span>
+<span class="sd">        :returns: The created :class:`~qapy.disk.QDisk`.</span>
+
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">QDisk</span><span class="o">.</span><span class="n">_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">force</span><span class="p">,</span> <span class="n">lock</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="QApy.create_task"><a class="viewcode-back" href="../../qapy.html#qapy.connection.QApy.create_task">[docs]</a>    <span class="k">def</span> <span class="nf">create_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">frame_nbr</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new :class:`~qapy.task.QTask`.</span>
+
+<span class="sd">        :param str name: given name of the task</span>
+<span class="sd">        :param str profile: which profile to use with this task</span>
+<span class="sd">        :param int frame_nbr: number of frame on which to run task</span>
+<span class="sd">        :param bool force: remove an old task if the maximum number of allowed</span>
+<span class="sd">           tasks is reached. Plus, it will delete an old unlocked disk</span>
+<span class="sd">           if maximum number of disks is reached for resources and results</span>
+
+<span class="sd">        :rtype: :class:`~qapy.task.QTask`</span>
+<span class="sd">        :returns: The created :class:`~qapy.task.QTask`.</span>
+
+<span class="sd">        .. note:: See available profiles with :meth:`profiles`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">QTask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">frame_nbr</span><span class="p">,</span> <span class="n">force</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="QApy.create_task_state_changed_notification"><a class="viewcode-back" href="../../qapy.html#qapy.connection.QApy.create_task_state_changed_notification">[docs]</a>    <span class="k">def</span> <span class="nf">create_task_state_changed_notification</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">filterkey</span><span class="p">,</span> <span class="n">filtervalue</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">toregex</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fromregex</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">stateregex</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new :class:`qapy.notification.QNotification` with a filter of type :class:`qapy.notification.TaskStateChanged`.</span>
+
+<span class="sd">        :param str destination: e-mail address</span>
+<span class="sd">        :param str filterkey: key to watch on tasks</span>
+<span class="sd">        :param str filtervalue: regex to match for the filter key</span>
+<span class="sd">        :param str template: (optionnal) Template for the notification</span>
+<span class="sd">        :param str toregex: (optional) Regex to match the &quot;To&quot; value on a state change, default to &quot;.*&quot;</span>
+<span class="sd">        :param str fromregex: (optional) Regex to match the &quot;From&quot; value on a state change, default to &quot;.*&quot;</span>
+<span class="sd">        :param str stateregex: (optional) Regex to match the &quot;From&quot; or &quot;To&quot; value on a state change, default to &quot;.*&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nfilter</span> <span class="o">=</span> <span class="n">notification</span><span class="o">.</span><span class="n">TaskStateChanged</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">filterkey</span><span class="p">,</span> <span class="n">filtervalue</span><span class="p">,</span> <span class="n">toregex</span><span class="p">,</span> <span class="n">fromregex</span><span class="p">,</span> <span class="n">stateregex</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">QNotification</span><span class="o">.</span><span class="n">_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nfilter</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="QApy.create_task_created_notification"><a class="viewcode-back" href="../../qapy.html#qapy.connection.QApy.create_task_created_notification">[docs]</a>    <span class="k">def</span> <span class="nf">create_task_created_notification</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">filterkey</span><span class="p">,</span> <span class="n">filtervalue</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new :class:`qapy.notification.QNotification` with a filter of type :class:`qapy.notification.TaskCreated`.</span>
+
+<span class="sd">        :param str destination: e-mail address</span>
+<span class="sd">        :param str filterkey: key to watch on tasks</span>
+<span class="sd">        :param str filtervalue: regex to match for the filter key</span>
+<span class="sd">        :param str template: (optionnal) Template for the notification</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nfilter</span> <span class="o">=</span> <span class="n">notification</span><span class="o">.</span><span class="n">TaskCreated</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">filterkey</span><span class="p">,</span> <span class="n">filtervalue</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">QNotification</span><span class="o">.</span><span class="n">_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nfilter</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="QApy.create_task_ended_notification"><a class="viewcode-back" href="../../qapy.html#qapy.connection.QApy.create_task_ended_notification">[docs]</a>    <span class="k">def</span> <span class="nf">create_task_ended_notification</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">filterkey</span><span class="p">,</span> <span class="n">filtervalue</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new :class:`qapy.notification.QNotification` with a filter of type :class:`qapy.notification.TaskEnded`.</span>
+
+<span class="sd">        :param str destination: e-mail address</span>
+<span class="sd">        :param str filterkey: key to watch on tasks</span>
+<span class="sd">        :param str filtervalue: regex to match for the filter key</span>
+<span class="sd">        :param str template: (optionnal) Template for the notification</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nfilter</span> <span class="o">=</span> <span class="n">notification</span><span class="o">.</span><span class="n">TaskEnded</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">filterkey</span><span class="p">,</span> <span class="n">filtervalue</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">QNotification</span><span class="o">.</span><span class="n">_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nfilter</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="QApy.notifications"><a class="viewcode-back" href="../../qapy.html#qapy.connection.QApy.notifications">[docs]</a>    <span class="k">def</span> <span class="nf">notifications</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the list of notifications for the user</span>
+
+<span class="sd">        :rtype: List of :class:~qapy.task.QNotification`.</span>
+<span class="sd">        :returns: List of all notifications belonging to the user</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">get_url</span><span class="p">(</span><span class="s">&#39;notification&#39;</span><span class="p">))</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="n">notifications</span> <span class="o">=</span> <span class="p">[</span><span class="n">QNotification</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="n">notifications</span>
+</div>
+<div class="viewcode-block" id="QApy.retrieve_notification"><a class="viewcode-back" href="../../qapy.html#qapy.connection.QApy.retrieve_notification">[docs]</a>    <span class="k">def</span> <span class="nf">retrieve_notification</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">notification_guid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve a :class:~qapy.notification.QNotification` from it&#39;s guid</span>
+
+<span class="sd">        :param str notification_guid: Id of the notification</span>
+<span class="sd">        :rtype: :class:`~qapi.notification.QNotification`</span>
+<span class="sd">        :returns: Existing notification defined by the given guid</span>
+
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">get_url</span><span class="p">(</span><span class="s">&#39;notification update&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">notification_guid</span><span class="p">))</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">QNotification</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">(),</span> <span class="bp">self</span><span class="p">)</span>
+
+
+<span class="c">###################</span>
+<span class="c"># utility Classes #</span>
+<span class="c">###################</span>
+</div></div>
+<div class="viewcode-block" id="QUserInfo"><a class="viewcode-back" href="../../qapy.html#qapy.connection.QUserInfo">[docs]</a><span class="k">class</span> <span class="nc">QUserInfo</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Informations about a qapy user.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diskCount</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&#39;diskCount&#39;</span><span class="p">]</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`int`</span>
+
+<span class="sd">        Number of disks owned by the user.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxDisk</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&#39;maxDisk&#39;</span><span class="p">]</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`int`</span>
+
+<span class="sd">        Maximum number of disks allowed (resource and result disks).&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quotaBytes</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&#39;quotaBytes&#39;</span><span class="p">]</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`int`</span>
+
+<span class="sd">        Total storage space allowed for the user&#39;s disks (in Bytes).&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">usedQuotaBytes</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&#39;usedQuotaBytes&#39;</span><span class="p">]</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`int`</span>
+
+<span class="sd">        Total storage space used by the user&#39;s disks (in Bytes).&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">taskCount</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&#39;taskCount&#39;</span><span class="p">]</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`int`</span>
+
+<span class="sd">        Total number of tasks belonging to the user.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxTask</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&#39;maxTask&#39;</span><span class="p">]</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`int`</span>
+
+<span class="sd">        Maximum number of tasks the user is allowed to create.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runningTaskCount</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&#39;runningTaskCount&#39;</span><span class="p">]</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`int`</span>
+
+<span class="sd">        Number of tasks currently in &#39;Submitted&#39; state.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxRunningTask</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&#39;maxRunningTask&#39;</span><span class="p">]</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`int`</span>
+
+<span class="sd">        Maximum number of running tasks.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxInstances</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&#39;maxInstances&#39;</span><span class="p">]</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`int`</span>
+
+<span class="sd">        Maximum number of frames per task.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">executionTime</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&#39;executionTime&#39;</span><span class="p">]</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`int`</span>
+
+<span class="sd">        Total computation time.&quot;&quot;&quot;</span>
+</div>
+<div class="viewcode-block" id="QProfile"><a class="viewcode-back" href="../../qapy.html#qapy.connection.QProfile">[docs]</a><span class="k">class</span> <span class="nc">QProfile</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Informations about a profile.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`str`</span>
+
+<span class="sd">        Name of the profile.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constants</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">cst</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">],</span> <span class="n">cst</span><span class="p">[</span><span class="s">&#39;value&#39;</span><span class="p">])</span>
+                               <span class="k">for</span> <span class="n">cst</span> <span class="ow">in</span> <span class="n">info</span><span class="p">[</span><span class="s">&#39;constants&#39;</span><span class="p">])</span>
+        <span class="sd">&quot;&quot;&quot;:type: List of (:class:`str`, :class:`str`)</span>
+
+<span class="sd">        List of couples (name, value) representing constants for this profile</span>
+<span class="sd">        and their default values.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&#39;QProfile(name=</span><span class="si">%s</span><span class="s">, constants=</span><span class="si">%r</span><span class="s">}&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">constants</span><span class="p">)</span>
+
+
+<span class="c">##############</span>
+<span class="c"># Exceptions #</span>
+<span class="c">##############</span>
+</div>
+<div class="viewcode-block" id="UnauthorizedException"><a class="viewcode-back" href="../../qapy.html#qapy.connection.UnauthorizedException">[docs]</a><span class="k">class</span> <span class="nc">UnauthorizedException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Authorization given is not valid.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auth</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">UnauthorizedException</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+            <span class="s">&quot;invalid credentials : {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">auth</span><span class="p">))</span></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Qarnot Computing.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

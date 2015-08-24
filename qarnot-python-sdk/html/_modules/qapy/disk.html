@@ -1,0 +1,926 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qapy.disk &mdash; qapy  documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="qapy  documentation" href="../../index.html"/>
+        <link rel="up" title="qapy" href="../qapy.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../../index.html" class="fa fa-home"> qapy</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../qapy.html">qapy package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../qapy.html#module-qapy">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../qapy.html#module-qapy.connection">qapy.connection module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../qapy.html#module-qapy.disk">qapy.disk module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../qapy.html#module-qapy.task">qapy.task module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../qapy.html#qapy-notification-module">qapy.notification module</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">qapy</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+          <li><a href="../qapy.html">qapy</a> &raquo;</li>
+      
+    <li>qapy.disk</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <h1>Source code for qapy.disk</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;Module for disk object.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="kn">from</span> <span class="nn">qapy</span> <span class="kn">import</span> <span class="n">get_url</span><span class="p">,</span> <span class="n">raise_on_error</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="kn">as</span> <span class="nn">path</span>
+<span class="kn">import</span> <span class="nn">posixpath</span> <span class="kn">as</span> <span class="nn">ppath</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+
+<div class="viewcode-block" id="QDisk"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QDisk">[docs]</a><span class="k">class</span> <span class="nc">QDisk</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Represents a resource/result disk on the cluster.</span>
+
+<span class="sd">    This class is the interface to manage resources or results from a</span>
+<span class="sd">    :class:`qapy.task.QTask`.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">       Paths given as &#39;remote&#39; arguments,</span>
+<span class="sd">       (or as path arguments for :func:`QDisk.directory`)</span>
+<span class="sd">       **must** be valid unix-like paths.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c">#Creation#</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jsondisk</span><span class="p">,</span> <span class="n">connection</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a disk from a dictionary.</span>
+
+<span class="sd">        :param dict jsondisk: Dictionary representing the disk,</span>
+<span class="sd">          must contain following keys:</span>
+
+<span class="sd">            * id: string, the disk&#39;s UUID</span>
+
+<span class="sd">            * description: string, a short description of the disk</span>
+
+<span class="sd">        :param :class:`qapy.connection.QApy` connection:</span>
+<span class="sd">          the cluster on which the disk is</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="n">jsondisk</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_description</span> <span class="o">=</span> <span class="n">jsondisk</span><span class="p">[</span><span class="s">&quot;description&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span> <span class="o">=</span> <span class="n">jsondisk</span><span class="p">[</span><span class="s">&quot;locked&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span> <span class="o">=</span> <span class="n">connection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filethreads</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filecache</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_mode</span> <span class="o">=</span> <span class="n">QUploadMode</span><span class="o">.</span><span class="n">blocking</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_create</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">connection</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a disk on a cluster.</span>
+
+<span class="sd">        :param :class:`qapy.connection.QApy` connection:</span>
+<span class="sd">          represents the cluster on which to create the disk</span>
+<span class="sd">        :param str description: a short description of the disk</span>
+<span class="sd">        :param bool force: it will delete an old unlocked disk</span>
+<span class="sd">          if maximum number of disks is reached for resources and results</span>
+<span class="sd">        :param bool lock: prevents the disk to be removed</span>
+<span class="sd">          by a subsequent :meth:`qapy.connection.QApy.create_task` with</span>
+<span class="sd">          *force* set to True.</span>
+
+<span class="sd">        :rtype: :class:`QDisk`</span>
+<span class="sd">        :returns: The created :class:`QDisk`.</span>
+
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&quot;description&quot;</span> <span class="p">:</span> <span class="n">description</span><span class="p">,</span>
+            <span class="s">&quot;locked&quot;</span> <span class="p">:</span> <span class="n">lock</span>
+            <span class="p">}</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;disk force&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">force</span> <span class="k">else</span> <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;disk folder&#39;</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">403</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MaxDiskException</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="n">disk_id</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">_retrieve</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="n">disk_id</span><span class="p">[</span><span class="s">&#39;guid&#39;</span><span class="p">])</span>
+
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_retrieve</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">connection</span><span class="p">,</span> <span class="n">disk_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve information of a disk on a cluster.</span>
+
+<span class="sd">        :param :class:`qapy.connection.QApy` connection: the cluster</span>
+<span class="sd">            to get the disk from</span>
+<span class="sd">        :param str disk_id: the UUID of the disk to retrieve</span>
+
+<span class="sd">        :rtype: :class:`QDisk`</span>
+<span class="sd">        :returns: The retrieved disk.</span>
+
+<span class="sd">        :raises qapy.disk.MissingDiskException: the disk is not on the server</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">get_url</span><span class="p">(</span><span class="s">&#39;disk info&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">disk_id</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingDiskException</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span>
+                                       <span class="n">disk_id</span><span class="p">)</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">(),</span> <span class="n">connection</span><span class="p">)</span>
+
+    <span class="c">#Disk Management#</span>
+
+<div class="viewcode-block" id="QDisk.update"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QDisk.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">get_url</span><span class="p">(</span><span class="s">&#39;disk info&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingDiskException</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span>
+                                       <span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">)</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="n">jsondisk</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="n">jsondisk</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_description</span> <span class="o">=</span> <span class="n">jsondisk</span><span class="p">[</span><span class="s">&quot;description&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span> <span class="o">=</span> <span class="n">jsondisk</span><span class="p">[</span><span class="s">&quot;locked&quot;</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="QDisk.delete"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QDisk.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Delete the disk represented by this :class:`QDisk`.</span>
+
+<span class="sd">        :raises qapy.disk.MissingDiskException: the disk is not on the server</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_delete</span><span class="p">(</span>
+            <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;disk info&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingDiskException</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span>
+                                       <span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">)</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="QDisk.get_archive"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QDisk.get_archive">[docs]</a>    <span class="k">def</span> <span class="nf">get_archive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s">&#39;zip&#39;</span><span class="p">,</span> <span class="n">local</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get an archive of this disk&#39;s content.</span>
+
+<span class="sd">        :param str extension: in {&#39;tar&#39;, &#39;tgz&#39;, &#39;zip&#39;},</span>
+<span class="sd">          format of the archive to get</span>
+<span class="sd">        :param str local: name of the file to output to</span>
+
+<span class="sd">        :rtype: :class:`str`</span>
+<span class="sd">        :returns:</span>
+<span class="sd">         The filename of the retrieved archive.</span>
+
+<span class="sd">        :raises qapy.disk.MissingDiskException: the disk is not on the server</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises ValueError: invalid extension format</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span>
+            <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;get disk&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="n">extension</span><span class="p">),</span>
+            <span class="n">stream</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingDiskException</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span>
+                                       <span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">400</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;invalid file format : {0}&#39;</span><span class="p">,</span> <span class="n">extension</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="n">local</span> <span class="o">=</span> <span class="n">local</span> <span class="ow">or</span> <span class="s">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span> <span class="n">extension</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">local</span><span class="p">):</span>
+            <span class="n">local</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="s">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span> <span class="n">extension</span><span class="p">]))</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_local</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">iter_content</span><span class="p">():</span>
+                <span class="n">f_local</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">elt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">local</span>
+
+</div>
+<div class="viewcode-block" id="QDisk.list_files"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QDisk.list_files">[docs]</a>    <span class="k">def</span> <span class="nf">list_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List files on the whole disk.</span>
+
+<span class="sd">        :rtype: List of :class:`QFileInfo`.</span>
+<span class="sd">        :returns: List of the files on the disk.</span>
+
+<span class="sd">        :raises qapy.disk.MissingDiskException: the disk is not on the server</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span>
+            <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;tree disk&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingDiskException</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span>
+                                       <span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">)</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">QFileInfo</span><span class="p">(</span><span class="o">**</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()]</span>
+</div>
+<div class="viewcode-block" id="QDisk.directory"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QDisk.directory">[docs]</a>    <span class="k">def</span> <span class="nf">directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List files in a directory of the disk. Doesn&#39;t go through</span>
+<span class="sd">        subdirectories.</span>
+
+<span class="sd">        :param str directory: path of the directory to inspect.</span>
+<span class="sd">          Must be unix-like.</span>
+
+<span class="sd">        :rtype: List of :class:`QFileInfo`.</span>
+<span class="sd">        :returns: Files in the given directory on the :class:`QDisk`.</span>
+
+<span class="sd">        :raises qapy.disk.MissingDiskException: the disk is not on the server</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">           Paths in results are relative to the *directory* argument.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span>
+            <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;ls disk&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">directory</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;no such disk&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MissingDiskException</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span>
+                                           <span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">)</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">QFileInfo</span><span class="p">(</span><span class="o">**</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()]</span>
+</div>
+<div class="viewcode-block" id="QDisk.sync_directory"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QDisk.sync_directory">[docs]</a>    <span class="k">def</span> <span class="nf">sync_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Synchronize a local directory with the remote disks.</span>
+
+<span class="sd">        :param str directory: The local directory to use for synchronization</span>
+<span class="sd">        :param bool verbose: Print information about synchronization operations</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">           Local changes are reflected on the server, a file present on the disk but</span>
+<span class="sd">           not in the local directory will be deleted from the disk.</span>
+
+<span class="sd">           A file present in the directory but not in the disk will be uploaded.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">           The following parameters are used to determine wether synchronization is required :</span>
+
+<span class="sd">              * name</span>
+<span class="sd">              * size</span>
+<span class="sd">              * sha1sum</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">directory</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">):</span>
+            <span class="n">directory</span> <span class="o">=</span> <span class="n">directory</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span>
+
+        <span class="n">filesdict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">subdirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">filepath</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:]</span>
+                <span class="n">filesdict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">filepath</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sync_files</span><span class="p">(</span><span class="n">filesdict</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="QDisk.sync_files"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QDisk.sync_files">[docs]</a>    <span class="k">def</span> <span class="nf">sync_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">files</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Synchronize files  with the remote disks.</span>
+
+<span class="sd">        :param dict files: Dictionnary of synchronized files</span>
+<span class="sd">        :param bool verbose: Print information about synchronization operations</span>
+
+<span class="sd">        Dictionnary key is the remote file path while value is the local file path.</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">           Local changes are reflected on the server, a file present on the disk but</span>
+<span class="sd">           not in the local directory will be deleted from the disk.</span>
+
+<span class="sd">           A file present in the directory but not in the disk will be uploaded.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">           The following parameters are used to determine wether synchronization is required :</span>
+
+<span class="sd">              * name</span>
+<span class="sd">              * size</span>
+<span class="sd">              * sha1sum</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">generate_file_sha1</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">blocksize</span><span class="o">=</span><span class="mi">2</span><span class="o">**</span><span class="mi">20</span><span class="p">):</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha1</span><span class="p">()</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                    <span class="n">buf</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">blocksize</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">buf</span><span class="p">:</span>
+                        <span class="k">break</span>
+                    <span class="n">m</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">m</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">create_qfi</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">):</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">microsecond</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">st_size</span>
+            <span class="n">qfi</span> <span class="o">=</span> <span class="n">QFileInfo</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="s">&quot;file&quot;</span><span class="p">,</span> <span class="n">generate_file_sha1</span><span class="p">(</span><span class="n">filepath</span><span class="p">))</span>
+            <span class="n">qfi</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span>
+            <span class="k">return</span> <span class="n">qfi</span>
+
+        <span class="n">localfiles</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">files</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">qfi</span> <span class="o">=</span> <span class="n">create_qfi</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span>
+            <span class="n">localfiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qfi</span><span class="p">)</span>
+
+        <span class="n">local</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">localfiles</span><span class="p">)</span>
+        <span class="n">remote</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list_files</span><span class="p">())</span>
+
+        <span class="n">adds</span> <span class="o">=</span> <span class="n">local</span> <span class="o">-</span> <span class="n">remote</span>
+        <span class="n">removes</span> <span class="o">=</span> <span class="n">remote</span> <span class="o">-</span> <span class="n">local</span>
+
+        <span class="n">sadds</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">adds</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">sha1sum</span><span class="p">)</span>
+        <span class="n">groupedadds</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">g</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">sadds</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">sha1sum</span><span class="p">)]</span>
+
+        <span class="n">removelater</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">removes</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">new</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">adds</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">sha1sum</span> <span class="o">==</span> <span class="n">f</span><span class="o">.</span><span class="n">sha1sum</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="p">(</span><span class="s">&quot;Rename: &quot;</span> <span class="o">+</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span><span class="s">&quot; to &quot;</span> <span class="o">+</span> <span class="n">new</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&quot;Link &amp; Delete&quot;</span><span class="p">)</span>
+                <span class="n">removelater</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Delete: &quot;</span> <span class="o">+</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">delete_file</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="n">remote</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_files</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">groupedadds</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">rem</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">remote</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">sha1sum</span> <span class="o">==</span> <span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sha1sum</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="p">(</span><span class="s">&quot;Link: &quot;</span> <span class="o">+</span> <span class="n">rem</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&quot; &lt;- &quot;</span> <span class="o">+</span> <span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="n">rem</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="p">(</span><span class="s">&quot;Upload: &quot;</span> <span class="o">+</span> <span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_file</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span> <span class="c">#duplicate files</span>
+                <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                        <span class="k">print</span> <span class="p">(</span><span class="s">&quot;Link: &quot;</span> <span class="o">+</span> <span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&quot; &lt;- &quot;</span> <span class="o">+</span> <span class="n">link</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">link</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">removelater</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="k">print</span> <span class="p">(</span><span class="s">&quot;Delete: &quot;</span> <span class="o">+</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">delete_file</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="QDisk.flush"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QDisk.flush">[docs]</a>    <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Ensure all files added through :meth:`add_file`/:meth:`add_directory`</span>
+<span class="sd">        are on the disk.</span>
+
+<span class="sd">        :raises qapy.disk.MissingDiskException: the disk is not on the server</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises TypeError: trying to write on a R/O disk</span>
+<span class="sd">        :raises IOError: user space quota reached</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">thread</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filethreads</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filethreads</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">remote</span><span class="p">,</span> <span class="n">local</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filecache</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_file</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="n">remote</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filecache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="QDisk.add_link"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QDisk.add_link">[docs]</a>    <span class="k">def</span> <span class="nf">add_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">linkname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create link between files on the disk</span>
+
+<span class="sd">        :param str target: name of the existing file to duplicate</span>
+<span class="sd">        :param str linkname: name of the created file</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">           File size is counted twice, this method is meant to save upload time, not space.</span>
+
+<span class="sd">        :raises qapy.disk.MissingDiskException: the disk is not on the server</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s">&quot;target&quot;</span> <span class="p">:</span> <span class="n">target</span><span class="p">,</span>
+                <span class="s">&quot;linkName&quot;</span> <span class="p">:</span> <span class="n">linkname</span>
+            <span class="p">}</span>
+        <span class="p">]</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;link disk&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="QDisk.add_file"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QDisk.add_file">[docs]</a>    <span class="k">def</span> <span class="nf">add_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local</span><span class="p">,</span> <span class="n">remote</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a file on the disk.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">           You can also use **disk[remote] = local**</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">           In non blocking mode, you may receive an exception during an other</span>
+<span class="sd">           operation (like :meth:`flush`).</span>
+
+<span class="sd">        :param str local: name of the local file</span>
+<span class="sd">        :param str remote: name of the remote file</span>
+<span class="sd">          (defaults to *local*)</span>
+<span class="sd">        :param mode: mode with which to add the file</span>
+<span class="sd">          (defaults to :attr:`~QUploadMode.blocking` if not set by :attr:`QDisk.add_mode`)</span>
+<span class="sd">        :type mode: :class:`QUploadMode`</span>
+
+<span class="sd">        :raises qapy.disk.MissingDiskException: the disk is not on the server</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises TypeError: trying to write on a R/O disk</span>
+<span class="sd">        :raises IOError: user space quota reached</span>
+<span class="sd">        :raises ValueError: file could not be created</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_mode</span>
+        <span class="n">remote</span> <span class="o">=</span> <span class="n">remote</span> <span class="ow">or</span> <span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">local</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">remote</span><span class="p">,</span> <span class="n">QFileInfo</span><span class="p">):</span>
+            <span class="n">remote</span> <span class="o">=</span> <span class="n">remote</span><span class="o">.</span><span class="n">name</span>
+
+        <span class="n">previous</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filethreads</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">remote</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">previous</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span> <span class="c">#ensure no 2 threads write on the same file</span>
+            <span class="n">previous</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filethreads</span><span class="p">[</span><span class="n">remote</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">remote</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filecache</span><span class="p">:</span> <span class="c">#do not delay a file added differently</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filecache</span><span class="p">[</span><span class="n">remote</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="n">QUploadMode</span><span class="o">.</span><span class="n">blocking</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_file</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="n">remote</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="ow">is</span> <span class="n">QUploadMode</span><span class="o">.</span><span class="n">lazy</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_filecache</span><span class="p">[</span><span class="n">remote</span><span class="p">]</span> <span class="o">=</span> <span class="n">local</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_file</span><span class="p">,</span> <span class="n">remote</span><span class="p">,</span>
+                                      <span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="n">remote</span><span class="p">))</span>
+            <span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_filethreads</span><span class="p">[</span><span class="n">remote</span><span class="p">]</span> <span class="o">=</span> <span class="n">thread</span>
+</div>
+    <span class="k">def</span> <span class="nf">_add_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a file on the disk.</span>
+
+<span class="sd">        :param str filename: name of the local file</span>
+<span class="sd">        :param str dest: name of the remote file</span>
+<span class="sd">          (defaults to filename)</span>
+
+<span class="sd">        :rtype: :class:`bool`</span>
+<span class="sd">        :returns: whether the file has been successfully added</span>
+
+<span class="sd">        :raises qapy.disk.MissingDiskException: the disk is not on the server</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_local</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span>
+                <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;update file&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span>
+                        <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">dest</span><span class="p">)),</span>
+                <span class="n">files</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;filedata&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span> <span class="n">f_local</span><span class="p">)})</span>
+
+            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MissingDiskException</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span>
+                                           <span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">)</span>
+            <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+<div class="viewcode-block" id="QDisk.add_directory"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QDisk.add_directory">[docs]</a>    <span class="k">def</span> <span class="nf">add_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local</span><span class="p">,</span> <span class="n">remote</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add a directory to the disk. Does not follow symlinks.</span>
+<span class="sd">        File hierarchy is preserved.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">           You can also use **disk[remote] = local**</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">           In non blocking mode, you may receive an exception during an other</span>
+<span class="sd">           operation (like :meth:`flush`).</span>
+
+<span class="sd">        :param str local: path of the local directory to add</span>
+<span class="sd">        :param str remote: path of the directory on remote node</span>
+<span class="sd">          (defaults to *local*)</span>
+<span class="sd">        :param mode: the mode with which to add the directory</span>
+<span class="sd">          (defaults to :attr:`~QDisk.add_mode`)</span>
+<span class="sd">        :type mode: :class:`QUploadMode`</span>
+
+<span class="sd">        :raises qapy.disk.MissingDiskException: the disk is not on the server</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises ValueError: one or more file(s) could not be created</span>
+<span class="sd">        :raises IOError: not a valid directory</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">local</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s">&quot;Not a valid directory&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">dirpath</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">local</span><span class="p">):</span>
+            <span class="n">remote_loc</span> <span class="o">=</span> <span class="n">dirpath</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="n">remote</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_file</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirpath</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span>
+                              <span class="n">ppath</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">remote_loc</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="n">mode</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="QDisk.get_file"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QDisk.get_file">[docs]</a>    <span class="k">def</span> <span class="nf">get_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">remote</span><span class="p">,</span> <span class="n">local</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a file from the disk.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">           You can also use **disk[file]**</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">           Doesn&#39;t work with directories. Prefer the use of :meth:`get_archive`.</span>
+
+<span class="sd">        :param str remote: the name of the remote file</span>
+<span class="sd">        :param str local: local name of the retrieved file</span>
+<span class="sd">          (defaults to *remote*)</span>
+
+<span class="sd">        :rtype: :class:`string`</span>
+<span class="sd">        :returns: The name of the output file.</span>
+
+<span class="sd">        :raises qapy.disk.MissingDiskException: the disk is not on the server</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises ValueError: no such file</span>
+<span class="sd">          (:exc:`KeyError` with disk[file] syntax)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">remote</span><span class="p">,</span> <span class="n">QFileInfo</span><span class="p">):</span>
+            <span class="n">remote</span> <span class="o">=</span> <span class="n">remote</span><span class="o">.</span><span class="n">name</span>
+
+        <span class="n">pending</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filethreads</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">remote</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pending</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span> <span class="c">#ensure file is done uploading</span>
+            <span class="n">pending</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">remote</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filecache</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_file</span><span class="p">(</span><span class="n">remote</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filecache</span><span class="p">[</span><span class="n">remote</span><span class="p">])</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filecache</span><span class="p">[</span><span class="n">remote</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">local</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">local</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">remote</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">local</span><span class="p">):</span>
+            <span class="n">local</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">remote</span><span class="p">))</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span>
+            <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;update file&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">remote</span><span class="p">),</span>
+            <span class="n">stream</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;No such disk&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MissingDiskException</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span>
+                                           <span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">)</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">local</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_local</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">iter_content</span><span class="p">(</span><span class="mi">512</span><span class="p">):</span>
+                <span class="n">f_local</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">elt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">local</span>
+</div>
+<div class="viewcode-block" id="QDisk.delete_file"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QDisk.delete_file">[docs]</a>    <span class="k">def</span> <span class="nf">delete_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">remote</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Delete a file from the disk.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">           You can also use **del disk[file]**</span>
+
+<span class="sd">        :param str remote: the name of the remote file</span>
+
+<span class="sd">        :raises qapy.disk.MissingDiskException: the disk is not on the server</span>
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        :raises ValueError: no such file</span>
+<span class="sd">          (:exc:`KeyError` with disk[&#39;file&#39;] syntax)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pending</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filethreads</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">remote</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pending</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span> <span class="c">#ensure 2 threads don&#39;t use the same file</span>
+            <span class="n">pending</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">remote</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filecache</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_file</span><span class="p">(</span><span class="n">remote</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filecache</span><span class="p">[</span><span class="n">remote</span><span class="p">])</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filecache</span><span class="p">[</span><span class="n">remote</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">remote</span><span class="p">,</span> <span class="n">QFileInfo</span><span class="p">):</span>
+            <span class="n">remote</span> <span class="o">=</span> <span class="n">remote</span><span class="o">.</span><span class="n">name</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_delete</span><span class="p">(</span>
+            <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;update file&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">remote</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;No such disk&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MissingDiskException</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span>
+                                          <span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">)</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="QDisk.commit"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QDisk.commit">[docs]</a>    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Replicate local changes on the current object instance to the REST API</span>
+
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&quot;description&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_description</span><span class="p">,</span>
+            <span class="s">&quot;locked&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span>
+            <span class="p">}</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_put</span><span class="p">(</span><span class="n">get_url</span><span class="p">(</span><span class="s">&#39;disk info&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">),</span>
+                                     <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingDiskException</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;message&#39;</span><span class="p">],</span>
+                                       <span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">)</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="QDisk.uuid"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QDisk.uuid">[docs]</a>    <span class="k">def</span> <span class="nf">uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`string`</span>
+
+<span class="sd">        The disk&#39;s UUID.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">add_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`QUploadMode`</span>
+
+<span class="sd">        Default mode for adding files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_mode</span>
+
+    <span class="nd">@add_mode.setter</span>
+<div class="viewcode-block" id="QDisk.add_mode"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QDisk.add_mode">[docs]</a>    <span class="k">def</span> <span class="nf">add_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add mode setter&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_mode</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`string`</span>
+
+<span class="sd">        The disk&#39;s description.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_description</span>
+
+    <span class="nd">@description.setter</span>
+<div class="viewcode-block" id="QDisk.description"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QDisk.description">[docs]</a>    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Description setter&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_description</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">locked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`bool`</span>
+
+<span class="sd">        The disk&#39;s lock state. If True, prevents the disk to be removed</span>
+<span class="sd">        by a subsequent :meth:`qapy.connection.QApy.create_task` with *force*</span>
+<span class="sd">        set to True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span>
+
+    <span class="nd">@locked.setter</span>
+<div class="viewcode-block" id="QDisk.locked"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QDisk.locked">[docs]</a>    <span class="k">def</span> <span class="nf">locked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change disk&#39;s lock state.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="c">#tostring</span></div>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s">&quot;[LOCKED]     - &quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">locked</span> <span class="k">else</span> <span class="s">&quot;[NON LOCKED] - &quot;</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span> <span class="o">+</span> <span class="s">&quot; - &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span>
+    <span class="c">#operators#</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;x.__getitem__(y) &lt;==&gt; x[y]&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;x.__setitem__(i, y) &lt;==&gt; x[i]=y&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_directory</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;x.__delitem__(y) &lt;==&gt; del x[y]&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">delete_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;D.__contains__(k) -&gt; True if D has a key k, else False&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">QFileInfo</span><span class="p">):</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">return</span> <span class="n">item</span> <span class="ow">in</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_files</span><span class="p">()]</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;x.__iter__() &lt;==&gt; iter(x)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list_files</span><span class="p">())</span>
+
+<span class="c">###################</span>
+<span class="c"># Utility Classes #</span>
+<span class="c">###################</span>
+</div>
+<div class="viewcode-block" id="QFileInfo"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QFileInfo">[docs]</a><span class="k">class</span> <span class="nc">QFileInfo</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Informations about a file.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lastChange</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">fileFlags</span><span class="p">,</span> <span class="n">sha1Sum</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lastchange</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`datetime`</span>
+
+<span class="sd">        UTC Last change time of the file on the :class:`QDisk`.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lastChange</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lastchange</span> <span class="o">=</span> <span class="n">lastChange</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lastchange</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">lastChange</span><span class="p">,</span> <span class="s">&quot;%Y-%m-</span><span class="si">%d</span><span class="s">T%H:%M:%SZ&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`string`</span>
+
+<span class="sd">        Path of the file on the :class:`QDisk`.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`int`</span>
+
+<span class="sd">        Size of the file on the :class:`QDisk` (in Bytes).&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">directory</span> <span class="o">=</span> <span class="n">fileFlags</span> <span class="o">==</span> <span class="s">&#39;directory&#39;</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`bool`</span>
+
+<span class="sd">        Is the file a directory.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sha1sum</span> <span class="o">=</span> <span class="n">sha1Sum</span>
+        <span class="sd">&quot;&quot;&quot;:type: :class:`string`</span>
+<span class="sd">        SHA1 Sum of the file&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="s">&#39;QFileInfo(lastchange={0}, name={1}, size={2}, directory={3}, sha1sum={4})&#39;</span>
+        <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lastchange</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sha1sum</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">size</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">directory</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">directory</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sha1sum</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">sha1sum</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">^</span>
+                <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">^</span>
+                <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">directory</span><span class="p">)</span> <span class="o">^</span>
+                <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sha1sum</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="QUploadMode"><a class="viewcode-back" href="../../qapy.html#qapy.disk.QUploadMode">[docs]</a><span class="k">class</span> <span class="nc">QUploadMode</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;How to add files on a :class:`QDisk`.&quot;&quot;&quot;</span>
+    <span class="n">blocking</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="sd">&quot;&quot;&quot;Call to :func:`~QDisk.add_file` :func:`~QDisk.add_directory`</span>
+<span class="sd">    or blocks until file is done uploading.&quot;&quot;&quot;</span>
+    <span class="n">background</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="sd">&quot;&quot;&quot;Launch a background thread for uploading.&quot;&quot;&quot;</span>
+    <span class="n">lazy</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="sd">&quot;&quot;&quot;Actual uploading is made by the :func:`~QDisk.flush` method call.&quot;&quot;&quot;</span>
+
+<span class="c">##############</span>
+<span class="c"># Exceptions #</span>
+<span class="c">##############</span>
+</div>
+<div class="viewcode-block" id="MissingDiskException"><a class="viewcode-back" href="../../qapy.html#qapy.disk.MissingDiskException">[docs]</a><span class="k">class</span> <span class="nc">MissingDiskException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Non existant disk.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MissingDiskException</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+            <span class="s">&quot;{0}: {1} &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="MaxDiskException"><a class="viewcode-back" href="../../qapy.html#qapy.disk.MaxDiskException">[docs]</a><span class="k">class</span> <span class="nc">MaxDiskException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Max number of disks reached.&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Qarnot Computing.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

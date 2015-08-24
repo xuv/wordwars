@@ -1,0 +1,407 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qapy.notification &mdash; qapy  documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="qapy  documentation" href="../../index.html"/>
+        <link rel="up" title="qapy" href="../qapy.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../../index.html" class="fa fa-home"> qapy</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../qapy.html">qapy package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../qapy.html#module-qapy">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../qapy.html#module-qapy.connection">qapy.connection module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../qapy.html#module-qapy.disk">qapy.disk module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../qapy.html#module-qapy.task">qapy.task module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../qapy.html#qapy-notification-module">qapy.notification module</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">qapy</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+          <li><a href="../qapy.html">qapy</a> &raquo;</li>
+      
+    <li>qapy.notification</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <h1>Source code for qapy.notification</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;Notification&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">qapy</span> <span class="kn">import</span> <span class="n">get_url</span><span class="p">,</span> <span class="n">raise_on_error</span>
+
+<div class="viewcode-block" id="QNotification"><a class="viewcode-back" href="../../qapy.html#qapy.notification.QNotification">[docs]</a><span class="k">class</span> <span class="nc">QNotification</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A Qarnot Notification</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jsonnotification</span><span class="p">,</span> <span class="n">connection</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a notification from a dictionnary</span>
+
+<span class="sd">        :param dict jsonnotification: Dictionnary representing the notification,</span>
+<span class="sd">                must contain following keys:</span>
+
+<span class="sd">                  * id: string, the notification&#39;s GUID</span>
+<span class="sd">                  * mask: TaskStateChanged</span>
+<span class="sd">                  * filter.destination: string, destination (email)</span>
+<span class="sd">                  * filter.filterKey</span>
+<span class="sd">                  * filter.filterValue</span>
+
+<span class="sd">                optionnal</span>
+<span class="sd">                  * filter.template Mail template for the notification</span>
+<span class="sd">                  * filter.to To state regex (default to .*)</span>
+<span class="sd">                  * filter.from From state regex (default to .*)</span>
+<span class="sd">                  * filter.state From or To state regex (default to .*)</span>
+
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span> <span class="o">=</span> <span class="n">connection</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="n">jsonnotification</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mask</span> <span class="o">=</span> <span class="n">jsonnotification</span><span class="p">[</span><span class="s">&#39;mask&#39;</span><span class="p">]</span>
+
+        <span class="n">destination</span> <span class="o">=</span> <span class="n">jsonnotification</span><span class="p">[</span><span class="s">&#39;filter&#39;</span><span class="p">][</span><span class="s">&#39;destination&#39;</span><span class="p">]</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">jsonnotification</span><span class="p">[</span><span class="s">&#39;filter&#39;</span><span class="p">][</span><span class="s">&#39;template&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&#39;template&#39;</span> <span class="ow">in</span> <span class="n">jsonnotification</span><span class="p">[</span><span class="s">&#39;filter&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="bp">None</span>
+
+        <span class="n">filterkey</span> <span class="o">=</span> <span class="n">jsonnotification</span><span class="p">[</span><span class="s">&#39;filter&#39;</span><span class="p">][</span><span class="s">&#39;filterKey&#39;</span><span class="p">]</span>
+        <span class="n">filtervalue</span> <span class="o">=</span> <span class="n">jsonnotification</span><span class="p">[</span><span class="s">&#39;filter&#39;</span><span class="p">][</span><span class="s">&#39;filterValue&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mask</span> <span class="o">==</span> <span class="s">&quot;TaskStateChanged&quot;</span><span class="p">:</span>
+            <span class="n">_from</span> <span class="o">=</span> <span class="n">jsonnotification</span><span class="p">[</span><span class="s">&#39;filter&#39;</span><span class="p">][</span><span class="s">&#39;from&#39;</span><span class="p">]</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">jsonnotification</span><span class="p">[</span><span class="s">&#39;filter&#39;</span><span class="p">][</span><span class="s">&#39;state&#39;</span><span class="p">]</span>
+            <span class="n">to</span> <span class="o">=</span> <span class="n">jsonnotification</span><span class="p">[</span><span class="s">&#39;filter&#39;</span><span class="p">][</span><span class="s">&#39;to&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_filter</span> <span class="o">=</span> <span class="n">TaskStateChanged</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">filterkey</span><span class="p">,</span> <span class="n">filtervalue</span><span class="p">,</span> <span class="n">to</span><span class="p">,</span> <span class="n">_from</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mask</span> <span class="o">==</span> <span class="s">&quot;TaskCreated&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_filter</span> <span class="o">=</span> <span class="n">TaskCreated</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">filterkey</span><span class="p">,</span> <span class="n">filtervalue</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mask</span> <span class="o">==</span> <span class="s">&quot;TaskEnded&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_filter</span> <span class="o">=</span> <span class="n">TaskEnded</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">filterkey</span><span class="p">,</span> <span class="n">filtervalue</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_create</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">connection</span><span class="p">,</span> <span class="n">_filter</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new QNotification</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&quot;mask&quot;</span> <span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="n">_filter</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
+            <span class="s">&quot;filter&quot;</span> <span class="p">:</span> <span class="n">_filter</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;notification&#39;</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="n">rid</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;guid&#39;</span><span class="p">]</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">get_url</span><span class="p">(</span><span class="s">&#39;notification update&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">rid</span><span class="p">))</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">QNotification</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">(),</span> <span class="n">connection</span><span class="p">)</span>
+
+<div class="viewcode-block" id="QNotification.delete"><a class="viewcode-back" href="../../qapy.html#qapy.notification.QNotification.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Delete the notification represented by this :class:`QNotification`.</span>
+
+<span class="sd">        :raises qapy.QApyException: API general error, see message for details</span>
+<span class="sd">        :raises qapy.connection.UnauthorizedException: invalid credentials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">_delete</span><span class="p">(</span>
+            <span class="n">get_url</span><span class="p">(</span><span class="s">&#39;notification update&#39;</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">))</span>
+        <span class="n">raise_on_error</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="QNotification.id"><a class="viewcode-back" href="../../qapy.html#qapy.notification.QNotification.id">[docs]</a>    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Id Getter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Filter getter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter</span>
+
+    <span class="nd">@filter.setter</span>
+<div class="viewcode-block" id="QNotification.filter"><a class="viewcode-back" href="../../qapy.html#qapy.notification.QNotification.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Filter setter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filter</span> <span class="o">=</span> <span class="n">value</span>
+</div></div>
+<div class="viewcode-block" id="Filter"><a class="viewcode-back" href="../../qapy.html#qapy.notification.Filter">[docs]</a><span class="k">class</span> <span class="nc">Filter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Filter class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">destination</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_template</span> <span class="o">=</span> <span class="n">template</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_destination</span> <span class="o">=</span> <span class="n">destination</span>
+
+<div class="viewcode-block" id="Filter.json"><a class="viewcode-back" href="../../qapy.html#qapy.notification.Filter.json">[docs]</a>    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Json representation of the class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">json</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">json</span><span class="p">[</span><span class="s">&quot;destination&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destination</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_template</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">json</span><span class="p">[</span><span class="s">&quot;template&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_template</span>
+        <span class="k">return</span> <span class="n">json</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">destination</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Destination getter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destination</span>
+
+    <span class="nd">@destination.setter</span>
+<div class="viewcode-block" id="Filter.destination"><a class="viewcode-back" href="../../qapy.html#qapy.notification.Filter.destination">[docs]</a>    <span class="k">def</span> <span class="nf">destination</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Destination setter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_destination</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">template</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Template getter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_template</span>
+
+    <span class="nd">@template.setter</span>
+<div class="viewcode-block" id="Filter.template"><a class="viewcode-back" href="../../qapy.html#qapy.notification.Filter.template">[docs]</a>    <span class="k">def</span> <span class="nf">template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Template setter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_template</span> <span class="o">=</span> <span class="n">value</span>
+</div></div>
+<div class="viewcode-block" id="TaskNotification"><a class="viewcode-back" href="../../qapy.html#qapy.notification.TaskNotification">[docs]</a><span class="k">class</span> <span class="nc">TaskNotification</span><span class="p">(</span><span class="n">Filter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;TaskNotification class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">filterkey</span><span class="p">,</span> <span class="n">filtervalue</span><span class="p">):</span>
+        <span class="n">Filter</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filterkey</span> <span class="o">=</span> <span class="n">filterkey</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filtervalue</span> <span class="o">=</span> <span class="n">filtervalue</span>
+
+<div class="viewcode-block" id="TaskNotification.json"><a class="viewcode-back" href="../../qapy.html#qapy.notification.TaskNotification.json">[docs]</a>    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">json</span> <span class="o">=</span> <span class="n">Filter</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">json</span><span class="p">[</span><span class="s">&quot;filterKey&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filterkey</span>
+        <span class="n">json</span><span class="p">[</span><span class="s">&quot;filterValue&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filtervalue</span>
+        <span class="k">return</span> <span class="n">json</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">filterkey</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Filterkey getter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filterkey</span>
+
+    <span class="nd">@filterkey.setter</span>
+<div class="viewcode-block" id="TaskNotification.filterkey"><a class="viewcode-back" href="../../qapy.html#qapy.notification.TaskNotification.filterkey">[docs]</a>    <span class="k">def</span> <span class="nf">filterkey</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Filterkey setter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filterkey</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">filtervalue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Filtervalue getter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filtervalue</span>
+
+    <span class="nd">@filtervalue.setter</span>
+<div class="viewcode-block" id="TaskNotification.filtervalue"><a class="viewcode-back" href="../../qapy.html#qapy.notification.TaskNotification.filtervalue">[docs]</a>    <span class="k">def</span> <span class="nf">filtervalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Filtervalue setter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filtervalue</span> <span class="o">=</span> <span class="n">value</span>
+</div></div>
+<div class="viewcode-block" id="TaskStateChanged"><a class="viewcode-back" href="../../qapy.html#qapy.notification.TaskStateChanged">[docs]</a><span class="k">class</span> <span class="nc">TaskStateChanged</span><span class="p">(</span><span class="n">TaskNotification</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;TaskStateChanged class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">filterkey</span><span class="p">,</span> <span class="n">filtervalue</span><span class="p">,</span> <span class="n">to</span><span class="p">,</span> <span class="n">_from</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">TaskNotification</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">filterkey</span><span class="p">,</span> <span class="n">filtervalue</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_to</span> <span class="o">=</span> <span class="n">to</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_from</span> <span class="o">=</span> <span class="n">_from</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="n">state</span>
+
+<div class="viewcode-block" id="TaskStateChanged.json"><a class="viewcode-back" href="../../qapy.html#qapy.notification.TaskStateChanged.json">[docs]</a>    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">json</span> <span class="o">=</span> <span class="n">TaskNotification</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">json</span><span class="p">[</span><span class="s">&quot;to&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">json</span><span class="p">[</span><span class="s">&quot;from&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">json</span><span class="p">[</span><span class="s">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span>
+        <span class="k">return</span> <span class="n">json</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">toregex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;To getter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to</span>
+
+    <span class="nd">@toregex.setter</span>
+<div class="viewcode-block" id="TaskStateChanged.toregex"><a class="viewcode-back" href="../../qapy.html#qapy.notification.TaskStateChanged.toregex">[docs]</a>    <span class="k">def</span> <span class="nf">toregex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;To setter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_to</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fromregex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;To getter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from</span>
+
+    <span class="nd">@fromregex.setter</span>
+<div class="viewcode-block" id="TaskStateChanged.fromregex"><a class="viewcode-back" href="../../qapy.html#qapy.notification.TaskStateChanged.fromregex">[docs]</a>    <span class="k">def</span> <span class="nf">fromregex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;To setter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_from</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="TaskStateChanged.stateregex"><a class="viewcode-back" href="../../qapy.html#qapy.notification.TaskStateChanged.stateregex">[docs]</a>    <span class="k">def</span> <span class="nf">stateregex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;To getter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span>
+</div>
+    <span class="nd">@stateregex.setter</span>
+<div class="viewcode-block" id="TaskStateChanged.state_regex"><a class="viewcode-back" href="../../qapy.html#qapy.notification.TaskStateChanged.state_regex">[docs]</a>    <span class="k">def</span> <span class="nf">state_regex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;To setter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="n">value</span>
+</div></div>
+<div class="viewcode-block" id="TaskCreated"><a class="viewcode-back" href="../../qapy.html#qapy.notification.TaskCreated">[docs]</a><span class="k">class</span> <span class="nc">TaskCreated</span><span class="p">(</span><span class="n">TaskNotification</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;TaskCreated class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">filterkey</span><span class="p">,</span> <span class="n">filtervalue</span><span class="p">):</span>
+        <span class="n">TaskNotification</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">filterkey</span><span class="p">,</span> <span class="n">filtervalue</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TaskCreated.json"><a class="viewcode-back" href="../../qapy.html#qapy.notification.TaskCreated.json">[docs]</a>    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">json</span> <span class="o">=</span> <span class="n">TaskNotification</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">json</span>
+</div></div>
+<div class="viewcode-block" id="TaskEnded"><a class="viewcode-back" href="../../qapy.html#qapy.notification.TaskEnded">[docs]</a><span class="k">class</span> <span class="nc">TaskEnded</span><span class="p">(</span><span class="n">TaskNotification</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;TaskEnded class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">filterkey</span><span class="p">,</span> <span class="n">filtervalue</span><span class="p">):</span>
+        <span class="n">TaskNotification</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">filterkey</span><span class="p">,</span> <span class="n">filtervalue</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TaskEnded.json"><a class="viewcode-back" href="../../qapy.html#qapy.notification.TaskEnded.json">[docs]</a>    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">json</span> <span class="o">=</span> <span class="n">TaskNotification</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">json</span></div></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Qarnot Computing.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
