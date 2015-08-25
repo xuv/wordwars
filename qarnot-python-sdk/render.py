@@ -38,11 +38,11 @@ def main():
         #BLEND_CYCLES_SAMPLES, BLEND_SCENE, BLEND_SLICING, BLEND_FILE,
         #BLEND_FORMAT
         task.constants['BLEND_FILE'] = "wordwars-qarnot.blend"
-        task.constants['BLEND_FORMAT'] = "TGA"
+        task.constants['BLEND_FORMAT'] = "PNG"
         task.constants['BLEND_ENGINE'] = "BLENDER_RENDER"
         #task.constants['BLEND_CYCLES_SAMPLES'] = 50
         
-        task.advanced_range = "[471-475]"
+        task.advanced_range = "[190-1921]"
 
         log("Submitting task...")
         task.submit()

@@ -8,14 +8,17 @@ cd $SCRIPTPATH
 
 BLENDER='blender'
 
+# Relative path to the Blender file
+BLENDER_FILE='../qarnot-python-sdk/wordwars/wordwars-qarnot.blend'
+
 echo $DATE
 echo $SCRIPTPATH
 
 # Update the Blender file with new content
 
-$BLENDER -b ../wordwars.blend -P $SCRIPTPATH/fetch.py
+$BLENDER -b $BLENDER_FILE -P $SCRIPTPATH/fetch.py
 
-# Render the blender file if there was new content (aka. a description file has been created
+# Render the blender file if there was new content (aka. a description file has been created)
 
 DESCRIPTION_FILE=../data/description.txt
 
@@ -23,10 +26,21 @@ if [ -f $DESCRIPTION_FILE ]
 then
     echo FOUND $DESCRIPTION_FILE
     DESCRIPTION=$(<$DESCRIPTION_FILE)
-    $BLENDER -b ../wordwars.blend -S Prerendered -a
+    
+    # Render local
+    # $BLENDER -b ../wordwars.blend -S Prerendered -a
+    
+    
+    # Render using Qarnot SDK 
+    cd ../qarnot-python-sdk/
+    python3 render.py
+    cd ../scripts/
 else
 	echo NO description.txt FOUND
 fi
+
+# Create full video file with pre-rendered clips and frames form Qarnot
+
 
 # If there was a render, upload it to Youtube and backup the generated files
 
