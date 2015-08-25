@@ -18,3 +18,8 @@ press/*
 # API secrets
 scripts/*.json
 qarnot-python-sdk/qarnot.conf 
+
+# Qarnot related
+qarnot-python-sdk/output/
+qarnot-python-sdk/qapy/__pycache__/
+
