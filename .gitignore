@@ -21,5 +21,6 @@ qarnot-python-sdk/qarnot.conf
 
 # Qarnot related
 qarnot-python-sdk/output/
+qarnot-python-sdk/__pycache__/
 qarnot-python-sdk/qapy/__pycache__/
 

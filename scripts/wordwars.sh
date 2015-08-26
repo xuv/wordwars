@@ -34,13 +34,21 @@ then
     # Render using Qarnot SDK 
     cd ../qarnot-python-sdk/
     python3 render.py
+    
+    # Create full video file with pre-rendered clips and frames form Qarnot
+    ffmpeg -framerate 24 -start_number 190 -i output/%d.png -c:v rawvideo -pix_fmt bgr24 -r 24 ../assets/qarnot.avi
+    cd ../assets
+    # Video concatenation and conversion
+    ffmpeg -i WordWars0001-0377_RAW.avi -i qarnot.avi -i WordWars2108-2376_RAW.avi -filter_complex "[0:0] [1:0] [2:0] concat=n=3:v=1 [v]" -map "[v]" -c:v libx264 -b:v 6000k video.avi
+    # adding audio
+    ffmpeg -i video.avi -i audio.wav -map 0:v -map 1:a -c:v libx264 -b:v 6000k -c:a libfdk_aac -b:a 192k ../render/WordWars0001-2376.avi
+    # Removing temp files
+    rm qarnot.avi video.avi
     cd ../scripts/
+
 else
 	echo NO description.txt FOUND
 fi
-
-# Create full video file with pre-rendered clips and frames form Qarnot
-
 
 # If there was a render, upload it to Youtube and backup the generated files
 
