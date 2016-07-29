@@ -19,7 +19,8 @@ https://www.gnu.org/licenses/gpl.html
 '''
 
 import bpy
-import requests
+#import requests
+import urllib.request
 from xml.etree import ElementTree as ElTree
 from html.parser import HTMLParser
 import re
@@ -95,8 +96,9 @@ class Parser(HTMLParser):
 
 
 def getRSSFeed( url ):
-	raw = requests.get( url )
-	rss = ElTree.fromstring(raw.text)
+#	raw = requests.get( url )
+	raw = urllib.request.urlopen( url ).read() 
+	rss = ElTree.fromstring(raw.decode('utf-8'))
 
 	items = []
 
@@ -153,7 +155,7 @@ def createIntroText( articles ):
     bpy.ops.object.text_add(location=(-5,0,0))
     text_object = bpy.context.active_object
     text_object.name = 'intro_text'
-    text_object.data.align = 'JUSTIFY'
+    text_object.data.align_x = 'JUSTIFY'
     bpy.context.object.data.space_line = 1.7
     text_object.data.font = font_family             # set font family
     text_object.data.text_boxes[0].width = 10       # box width
